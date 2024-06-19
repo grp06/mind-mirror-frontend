@@ -1,147 +1,59 @@
-import {
-  App,
-  Editor,
-  MarkdownView,
-  Modal,
-  Notice,
-  Plugin,
-  PluginSettingTab,
-  Setting,
-} from "obsidian";
-import React from "react";
-import { createRoot, Root } from "react-dom/client";
-import { ReactView } from "./ReactView";
-
-interface MyPluginSettings {
-  mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-  mySetting: "default",
-};
+import { Plugin } from 'obsidian'
+import React from 'react'
+import { createRoot, Root } from 'react-dom/client'
+import { ReactView } from './ReactView'
+import DropdownContainer from './DropdownContainer'
+import './styles.css'
 
 export default class MyPlugin extends Plugin {
-  settings: MyPluginSettings;
-  root: Root | null = null;
+	root: Root | null = null
 
-  async onload() {
-    await this.loadSettings();
+	async onload() {
+		// Mount React component
+		const reactContainer = document.createElement('div')
+		document.body.appendChild(reactContainer)
+		this.root = createRoot(reactContainer)
+		this.root.render(
+			<>
+				<ReactView />
+				<DropdownContainer plugin={this} />
+			</>,
+		)
+	}
 
-    const ribbonIconEl = this.addRibbonIcon(
-      "dice",
-      "Sample Plugin",
-      (evt: MouseEvent) => {
-        new Notice("This is a notice!");
-      }
-    );
+	async fetchAndDisplayResult({
+		prompt,
+		userInput,
+		resultElementId,
+		noteRange,
+	}: {
+		prompt: string
+		userInput: string
+		resultElementId: string
+		noteRange: string
+	}) {
+		await fetchAndDisplayResult(this, {
+			prompt,
+			userInput,
+			resultElementId,
+			noteRange,
+		})
+	}
 
-    ribbonIconEl.addClass("my-plugin-ribbon-class");
+	generatePrompt(
+		therapyType: string,
+		insightFilter: string,
+		length: string,
+		userFeelings: string[],
+	): string {
+		const feelingsString =
+			userFeelings.length > 0
+				? `Keep in mind, the user has gone through these feelings today: ${userFeelings.join(', ')}. You don't have to mention them. Just keep them in mind`
+				: ''
+		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}. Don't include any formatting or bullet points.`
+	}
 
-    const statusBarItemEl = this.addStatusBarItem();
-    statusBarItemEl.setText("Status Bar Text");
-
-    this.addCommand({
-      id: "open-sample-modal-simple",
-      name: "Open sample modal (simple)",
-      callback: () => {
-        new SampleModal(this.app).open();
-      },
-    });
-
-    this.addCommand({
-      id: "sample-editor-command",
-      name: "Sample editor command",
-      editorCallback: (editor: Editor, view: MarkdownView) => {
-        console.log(editor.getSelection());
-        editor.replaceSelection("Sample Editor Command");
-      },
-    });
-
-    this.addCommand({
-      id: "open-sample-modal-complex",
-      name: "Open sample modal (complex)",
-      checkCallback: (checking: boolean) => {
-        const markdownView =
-          this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (markdownView) {
-          if (!checking) {
-            new SampleModal(this.app).open();
-          }
-          return true;
-        }
-      },
-    });
-
-    this.addSettingTab(new SampleSettingTab(this.app, this));
-
-    this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-      console.log("click", evt);
-    });
-
-    this.registerInterval(
-      window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-    );
-
-    // Mount React component
-    const reactContainer = document.createElement("div");
-    document.body.appendChild(reactContainer);
-    this.root = createRoot(reactContainer);
-    this.root.render(<ReactView />);
-  }
-
-  onunload() {
-    this.root?.unmount();
-  }
-
-  async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-  }
-
-  async saveSettings() {
-    await this.saveData(this.settings);
-  }
-}
-
-class SampleModal extends Modal {
-  constructor(app: App) {
-    super(app);
-  }
-
-  onOpen() {
-    const { contentEl } = this;
-    contentEl.setText("Woah!");
-  }
-
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
-  }
-}
-
-class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
-
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    new Setting(containerEl)
-      .setName("Setting #1")
-      .setDesc("It's a secret")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter your secret")
-          .setValue(this.plugin.settings.mySetting)
-          .onChange(async (value) => {
-            this.plugin.settings.mySetting = value;
-            await this.plugin.saveSettings();
-          })
-      );
-  }
+	onunload() {
+		this.root?.unmount()
+	}
 }
