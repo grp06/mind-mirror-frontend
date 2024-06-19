@@ -17,8 +17,8 @@ export const InputItem = styled.div`
 export const Label = styled.label`
 	color: #f0f0f0;
 	font-weight: bold;
+	font-size: 1rem;
 `
-
 export const Input = styled.input`
 	background-color: #3a3a3a;
 	color: #f0f0f0;
@@ -72,11 +72,12 @@ export const Button = styled.button`
 
 export const RefreshButton = styled(Button)`
 	margin: 5px 0;
+	background-color: #45a049 !important;
 `
 
 export const UpdateMemoriesButton = styled(RefreshButton)`
 	padding: 2px 8px;
-	font-size: 8px;
+	font-size: 0.5rem;
 	height: 20px;
 	background: #f0f0f0 !important;
 	color: #3a3a3a;
@@ -97,7 +98,6 @@ export const SaveButton = styled.button`
 	}
 `
 
-// New TherapyModal component
 export const TherapyModal = styled(Wrapper)`
 	position: absolute;
 	bottom: 35px;
@@ -107,4 +107,61 @@ export const TherapyModal = styled(Wrapper)`
 	padding: 20px;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+`
+
+export const ResponseModalContainer = styled.div`
+	position: absolute;
+	top: 45px;
+	right: 14px;
+	background-color: #2c2c2c;
+	border: 1px solid #555;
+	padding: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	font-family: Arial, sans-serif;
+	color: #f0f0f0;
+	max-width: 300px;
+	z-index: 1000;
+`
+export const Title = styled.h2`
+	margin-top: 0;
+	font-size: 1.1rem;
+	color: #f0f0f0;
+`
+
+export const Content = styled.p`
+	margin: 10px 0;
+	font-size: 0.9rem;
+	line-height: 1.5;
+`
+
+export const ModalWrapper = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`
+
+export const ModalContent = styled.div`
+	background: #2c2c2c;
+	color: #f0f0f0;
+	padding: 20px;
+	border-radius: 8px;
+	width: 300px;
+	position: relative;
+`
+
+export const CloseButton = styled.button`
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: none;
+	border: none;
+	font-size: 16px;
+	cursor: pointer;
 `

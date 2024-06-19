@@ -1,84 +1,47 @@
 import React, { useState } from 'react'
-import { Notice } from 'obsidian'
+import {
+	ModalWrapper,
+	ModalContent,
+	Input,
+	CloseButton,
+	Button,
+	ButtonContainer,
+} from './StyledComponents'
 
 interface EmailModalProps {
-	onSubmit: (
-		username: string,
-		password: string,
-		isSignUp: boolean,
-	) => Promise<boolean>
-	isSignUp: boolean
+	isOpen: boolean
 	onClose: () => void
 }
 
-const EmailModal: React.FC<EmailModalProps> = ({
-	onSubmit,
-	isSignUp: initialIsSignUp,
-	onClose,
-}) => {
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
-	const [errorMessage, setErrorMessage] = useState('')
-	const [isSignUp, setIsSignUp] = useState(initialIsSignUp)
+const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
+	const [isSignUp, setIsSignUp] = useState(true)
 
-	const handleSubmit = async () => {
-		if (isSignUp && password !== confirmPassword) {
-			setErrorMessage('Passwords do not match')
-			return
-		}
+	if (!isOpen) return null
 
-		const success = await onSubmit(email, password, isSignUp)
-		if (success) {
-			new Notice('Authenticated successfully')
-			onClose()
-		} else {
-			setErrorMessage('Authentication failed')
-		}
+	const handleSubmit = () => {
+		console.log(isSignUp ? 'Sign Up' : 'Sign In')
 	}
 
 	return (
-		<div>
-			<h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
-			<div>
-				<label>Email</label>
-				<input
-					type="text"
-					placeholder="Enter your email"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-				/>
-			</div>
-			<div>
-				<label>Password</label>
-				<input
-					type="password"
-					placeholder="Enter your password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-				/>
-			</div>
-			{isSignUp && (
-				<div>
-					<label>Confirm Password</label>
-					<input
-						type="password"
-						placeholder="Confirm your password"
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-					/>
-				</div>
-			)}
-			{errorMessage && <div className="error-message">{errorMessage}</div>}
-			<div className="button-container">
-				<button onClick={handleSubmit}>
-					{isSignUp ? 'Sign Up' : 'Sign In'}
-				</button>
-				<button onClick={() => setIsSignUp(!isSignUp)}>
-					{isSignUp ? 'Switch to Sign In' : 'Switch to Sign Up'}
-				</button>
-			</div>
-		</div>
+		<ModalWrapper>
+			<ModalContent>
+				<CloseButton onClick={onClose}>X</CloseButton>
+				<h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
+				<Input type="email" placeholder="Enter your email" />
+				<Input type="password" placeholder="Enter your password" />
+				{isSignUp && (
+					<Input type="password" placeholder="Repeat your password" />
+				)}
+				<ButtonContainer>
+					<Button onClick={handleSubmit}>
+						{isSignUp ? 'Sign Up' : 'Sign In'}
+					</Button>
+					<Button onClick={() => setIsSignUp(!isSignUp)}>
+						Switch to {isSignUp ? 'Sign In' : 'Sign Up'}
+					</Button>
+				</ButtonContainer>
+			</ModalContent>
+		</ModalWrapper>
 	)
 }
 

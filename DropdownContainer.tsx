@@ -10,6 +10,7 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import { MarkdownView } from 'obsidian'
+import ResponseModal from './ResponseModal' // Import ResponseModal
 
 interface DropdownContainerProps {
 	plugin: MyPlugin
@@ -20,6 +21,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 	const [insightFilter, setInsightFilter] = useState('')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
+	const [showModal, setShowModal] = useState(false) // State to manage modal visibility
 
 	const updateUserInput = () => {
 		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
@@ -79,6 +81,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 				noteRange,
 			})
 			setResult(response)
+			setShowModal(true) // Show the modal when there is a response
 			console.log('API Response:', response) // Log the response
 		} catch (error) {
 			setResult('Error: ' + error.message)
@@ -86,42 +89,42 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 	}
 
 	return (
-		<TherapyModal>
-			<InputItem>
-				<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
-				<Select
-					id="therapy-type-dropdown"
-					value={therapyType}
-					onChange={handleTherapyTypeChange}
-				>
-					{therapyTypes.map((type) => (
-						<option key={type.value} value={type.value}>
-							{type.label}
-						</option>
-					))}
-				</Select>
-			</InputItem>
-			<InputItem>
-				<Label htmlFor="insight-filter-dropdown">Insight Filter</Label>
-				<Select
-					id="insight-filter-dropdown"
-					value={insightFilter}
-					onChange={handleInsightFilterChange}
-				>
-					{insightFilters.map((filter) => (
-						<option key={filter.value} value={filter.value}>
-							{filter.label}
-						</option>
-					))}
-				</Select>
-			</InputItem>
-			<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
-			{/* <ResultContainer id="result">{result}</ResultContainer> */}
-			{/* <Popup id="popup" style={{ display: result ? 'block' : 'none' }}>
-				Popup content
-			</Popup> */}
-			<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
-		</TherapyModal>
+		<>
+			<TherapyModal>
+				<InputItem>
+					<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
+					<Select
+						id="therapy-type-dropdown"
+						value={therapyType}
+						onChange={handleTherapyTypeChange}
+					>
+						{therapyTypes.map((type) => (
+							<option key={type.value} value={type.value}>
+								{type.label}
+							</option>
+						))}
+					</Select>
+				</InputItem>
+				<InputItem>
+					<Label htmlFor="insight-filter-dropdown">Insight Filter</Label>
+					<Select
+						id="insight-filter-dropdown"
+						value={insightFilter}
+						onChange={handleInsightFilterChange}
+					>
+						{insightFilters.map((filter) => (
+							<option key={filter.value} value={filter.value}>
+								{filter.label}
+							</option>
+						))}
+					</Select>
+				</InputItem>
+				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
+				<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
+			</TherapyModal>
+			<ResponseModal show={showModal} response={result} />{' '}
+			{/* Add ResponseModal */}
+		</>
 	)
 }
 
