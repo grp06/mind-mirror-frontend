@@ -19,6 +19,16 @@
 	font-weight: bold;
 }
 
+.settings-wrapper {
+	
+}
+
+.setting-item {
+	margin-bottom: 20px;
+}
+
+
+
 #dropdown-container select {
 	background-color: #3a3a3a;
 	color: #f0f0f0;

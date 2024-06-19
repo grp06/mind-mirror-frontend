@@ -1,49 +1,44 @@
-import React, { useEffect, useState } from 'react'
-import { MarkdownView, Notice } from 'obsidian'
+import React, { useState, useEffect } from 'react'
 import MyPlugin from './main'
+import { therapyTypes, insightFilters } from './data'
+import {
+	InputItem,
+	Label,
+	Select,
+	TherapyModal,
+	UpdateMemoriesButton,
+	RefreshButton,
+} from './StyledComponents'
+import { MarkdownView } from 'obsidian'
 
 interface DropdownContainerProps {
 	plugin: MyPlugin
 }
 
-const therapyTypes = [
-	{
-		value: 'cognitive-behavioral-therapy',
-		label: 'Cognitive Behavioral Therapy',
-	},
-	{
-		value: 'solution-focused-brief-therapy',
-		label: 'Solution-Focused Brief Therapy',
-	},
-	{ value: 'gestalt-therapy', label: 'Gestalt Therapy' },
-	{
-		value: 'mindfulness-based-cognitive-therapy',
-		label: 'Mindfulness-Based Cognitive Therapy',
-	},
-	{ value: 'psychodynamic-therapy', label: 'Psychodynamic Therapy' },
-	{ value: 'humanistic-therapy', label: 'Humanistic Therapy' },
-	{ value: 'existential-therapy', label: 'Existential Therapy' },
-	{ value: 'interpersonal-therapy', label: 'Interpersonal Therapy' },
-	{ value: 'family-systems-therapy', label: 'Family Systems Therapy' },
-	{ value: 'somatic-experience', label: 'Somatic Experience' },
-]
-
-const insightFilters = [
-	{ value: 'find-blindspots', label: 'Find Blindspots' },
-	{ value: 'give-feedback', label: 'Give Feedback' },
-	{ value: 'challenge-assumptions', label: 'Challenge Assumptions' },
-	{ value: 'identify-patterns', label: 'Identify Patterns' },
-	{ value: 'give-journaling-prompt', label: 'Give Journaling Prompt' },
-	{ value: 'detect-sentiment', label: 'Detect Sentiment' },
-	{ value: 'detect-underlying-emotions', label: 'Detect Underlying Emotions' },
-	{ value: 'generate-insights', label: 'Generate Insights' },
-	{ value: 'narrative-reframing', label: 'Narrative Reframing' },
-	{ value: 'action-planning', label: 'Action Planning' },
-]
-
 const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 	const [therapyType, setTherapyType] = useState('')
 	const [insightFilter, setInsightFilter] = useState('')
+	const [userInput, setUserInput] = useState('')
+	const [result, setResult] = useState('')
+
+	const updateUserInput = () => {
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+
+		if (view) {
+			setUserInput(view.editor.getValue())
+		} else {
+			setUserInput('')
+		}
+	}
+
+	useEffect(() => {
+		updateUserInput()
+		const onActiveLeafChange = () => updateUserInput()
+		plugin.app.workspace.on('active-leaf-change', onActiveLeafChange)
+		return () => {
+			plugin.app.workspace.off('active-leaf-change', onActiveLeafChange)
+		}
+	}, [plugin])
 
 	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const selectedTherapyType = e.target.value
@@ -59,11 +54,42 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 		console.log(`Insight Filter selected: ${selectedInsightFilter}`)
 	}
 
+	const handleRefresh = async () => {
+		console.log('Refreshing...')
+		if (!plugin.settings || typeof plugin.settings.length !== 'string') {
+			console.log('Error: Plugin settings not loaded or length is not a string')
+			setResult('Error: Plugin settings not loaded or length is not a string')
+			return
+		}
+
+		const length = plugin.settings.length
+		console.log('🚀 ~ handleRefresh ~ length:', length)
+		const noteRange = plugin.settings.noteRange
+		console.log('🚀 ~ handleRefresh ~ noteRange:', noteRange)
+
+		const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
+		console.log('🚀 ~ handleRefresh ~ prompt:', prompt)
+
+		setResult('Fetching feedback...')
+
+		try {
+			const response = await plugin.fetchAndDisplayResult({
+				prompt,
+				userInput,
+				noteRange,
+			})
+			setResult(response)
+			console.log('API Response:', response) // Log the response
+		} catch (error) {
+			setResult('Error: ' + error.message)
+		}
+	}
+
 	return (
-		<div id="dropdown-container">
-			<div className="therapy-label-wrapper">
-				<label htmlFor="therapy-type-dropdown">Type of Therapy</label>
-				<select
+		<TherapyModal>
+			<InputItem>
+				<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
+				<Select
 					id="therapy-type-dropdown"
 					value={therapyType}
 					onChange={handleTherapyTypeChange}
@@ -73,22 +99,29 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 							{type.label}
 						</option>
 					))}
-				</select>
-			</div>
-			<label htmlFor="insight-filter-dropdown">Insight Filter</label>
-			<select
-				id="insight-filter-dropdown"
-				value={insightFilter}
-				onChange={handleInsightFilterChange}
-			>
-				{insightFilters.map((filter) => (
-					<option key={filter.value} value={filter.value}>
-						{filter.label}
-					</option>
-				))}
-			</select>
-			<button id="update-memories-button">Update Memories</button>
-		</div>
+				</Select>
+			</InputItem>
+			<InputItem>
+				<Label htmlFor="insight-filter-dropdown">Insight Filter</Label>
+				<Select
+					id="insight-filter-dropdown"
+					value={insightFilter}
+					onChange={handleInsightFilterChange}
+				>
+					{insightFilters.map((filter) => (
+						<option key={filter.value} value={filter.value}>
+							{filter.label}
+						</option>
+					))}
+				</Select>
+			</InputItem>
+			<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
+			{/* <ResultContainer id="result">{result}</ResultContainer> */}
+			{/* <Popup id="popup" style={{ display: result ? 'block' : 'none' }}>
+				Popup content
+			</Popup> */}
+			<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
+		</TherapyModal>
 	)
 }
 
