@@ -10,18 +10,18 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import { MarkdownView } from 'obsidian'
-import ResponseModal from './ResponseModal' // Import ResponseModal
+import ResponseModal from './ResponseModal'
 
 interface DropdownContainerProps {
 	plugin: MyPlugin
 }
 
 const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
-	const [therapyType, setTherapyType] = useState('')
-	const [insightFilter, setInsightFilter] = useState('')
+	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
+	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
-	const [showModal, setShowModal] = useState(false) // State to manage modal visibility
+	const [showModal, setShowModal] = useState(false)
 
 	const updateUserInput = () => {
 		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
@@ -70,6 +70,9 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 		console.log('🚀 ~ handleRefresh ~ noteRange:', noteRange)
 
 		const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
+		console.log('🚀 ~ handleRefresh ~ length:', length)
+		console.log('🚀 ~ handleRefresh ~ insightFilter:', insightFilter)
+		console.log('🚀 ~ handleRefresh ~ therapyType:', therapyType)
 		console.log('🚀 ~ handleRefresh ~ prompt:', prompt)
 
 		setResult('Fetching feedback...')
@@ -81,8 +84,8 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 				noteRange,
 			})
 			setResult(response)
-			setShowModal(true) // Show the modal when there is a response
-			console.log('API Response:', response) // Log the response
+			setShowModal(true)
+			console.log('API Response:', response)
 		} catch (error) {
 			setResult('Error: ' + error.message)
 		}
@@ -99,8 +102,8 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 						onChange={handleTherapyTypeChange}
 					>
 						{therapyTypes.map((type) => (
-							<option key={type.value} value={type.value}>
-								{type.label}
+							<option key={type} value={type}>
+								{type}
 							</option>
 						))}
 					</Select>
@@ -113,8 +116,8 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 						onChange={handleInsightFilterChange}
 					>
 						{insightFilters.map((filter) => (
-							<option key={filter.value} value={filter.value}>
-								{filter.label}
+							<option key={filter} value={filter}>
+								{filter}
 							</option>
 						))}
 					</Select>
@@ -123,7 +126,6 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 				<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
 			</TherapyModal>
 			<ResponseModal show={showModal} response={result} />{' '}
-			{/* Add ResponseModal */}
 		</>
 	)
 }

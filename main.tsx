@@ -1,10 +1,9 @@
 import { Plugin, MarkdownView, TFile } from 'obsidian'
-
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import { ReactView } from './ReactView'
 import DropdownContainer from './DropdownContainer'
-import SettingsTab from './SettingsTab'
+import SettingsTab from './SettingsTab' // Ensure correct import
 import './styles.css'
 import { fetchAndDisplayResult, fetchMemories } from './apiHandler'
 
@@ -18,7 +17,7 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings()
-		this.addSettingTab(new SettingsTab(this.app, this))
+		this.addSettingTab(new SettingsTab(this.app, this)) // Ensure correct usage
 		const reactContainer = document.createElement('div')
 		document.body.appendChild(reactContainer)
 		this.root = createRoot(reactContainer)
@@ -88,14 +87,15 @@ export default class MyPlugin extends Plugin {
 			await leaf.openFile(memoryFile)
 		}
 	}
+
 	generatePrompt(
 		therapyType: string,
 		insightFilter: string,
 		length: string,
 	): string {
-		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.
-  `
+		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.`
 	}
+
 	onunload() {
 		this.root?.unmount()
 	}

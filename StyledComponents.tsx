@@ -120,7 +120,7 @@ export const ResponseModalContainer = styled.div`
 	border-radius: 8px;
 	font-family: Arial, sans-serif;
 	color: #f0f0f0;
-	max-width: 300px;
+	width: 300px;
 	z-index: 1000;
 `
 export const Title = styled.h2`
@@ -164,4 +164,15 @@ export const CloseButton = styled.button`
 	border: none;
 	font-size: 16px;
 	cursor: pointer;
+`
+
+export const EmailDisplay = styled.div`
+	color: #f0f0f0;
+	margin-top: 10px;
+	font-size: 0.9rem;
+`
+
+export const ErrorMessage = styled.div`
+	color: red;
+	margin-bottom: 10px;
 `
