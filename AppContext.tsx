@@ -46,6 +46,8 @@ interface AppContextProps {
 	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	handleCloseModal: () => void
+	handlePlusClick: (advice: string) => Promise<void>
+	handleHeartClick: (advice: string) => Promise<void>
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
@@ -168,6 +170,42 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 	const handleCloseModal = () => {
 		setShowModal(false)
 	}
+	const handlePlusClick = async (advice: string) => {
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!view) return
+
+		const editor = view.editor
+		const currentContent = editor.getValue()
+		const updatedContent = `${currentContent}\n\n### AI:\n- ${advice}\n### Me:\n- `
+		editor.setValue(updatedContent)
+
+		const lastLine = editor.lineCount() - 1
+		editor.setCursor({ line: lastLine, ch: 0 })
+		editor.scrollIntoView({
+			from: { line: lastLine, ch: 0 },
+			to: { line: lastLine, ch: 0 },
+		})
+	}
+
+	const handleHeartClick = async (advice: string) => {
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!view) return
+
+		const currentNoteFile = view.file
+		const currentNoteDate = currentNoteFile?.basename
+
+		const feedbackFile =
+			plugin.app.vault.getAbstractFileByPath('ai-feedback.md')
+
+		if (feedbackFile instanceof TFile) {
+			const content = await plugin.app.vault.read(feedbackFile)
+			const updatedContent = `### ${currentNoteDate}\n${advice}\n\n${content}`
+			await plugin.app.vault.modify(feedbackFile, updatedContent)
+		} else {
+			const newContent = `### ${currentNoteDate}\n${advice}`
+			await plugin.app.vault.create('ai-feedback.md', newContent)
+		}
+	}
 
 	return (
 		<AppContext.Provider
@@ -207,6 +245,8 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 				handleTherapyTypeChange,
 				handleInsightFilterChange,
 				handleCloseModal,
+				handlePlusClick,
+				handleHeartClick,
 			}}
 		>
 			{children}

@@ -176,3 +176,25 @@ export const ErrorMessage = styled.div`
 	color: red;
 	margin-bottom: 10px;
 `
+
+export const PlusButton = styled.button`
+	background-color: transparent;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	margin-left: 10px;
+	color: #000; /* Adjust color as needed */
+`
+
+export const HeartButton = styled.button`
+	background-color: transparent;
+	border: none;
+	color: red;
+	font-size: 1.5em;
+	cursor: pointer;
+	margin: 0 5px;
+
+	&:hover {
+		color: darkred;
+	}
+`

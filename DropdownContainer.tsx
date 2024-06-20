@@ -9,6 +9,7 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
+import { therapyTypes, insightFilters } from './data'
 
 const DropdownContainer: React.FC = () => {
 	const {
