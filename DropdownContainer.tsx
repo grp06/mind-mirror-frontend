@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { useAppContext } from './AppContext'
-import { therapyTypes, insightFilters } from './data'
 import {
 	InputItem,
 	Label,
@@ -19,17 +18,12 @@ const DropdownContainer: React.FC = () => {
 		setAuthMessage,
 		therapyType,
 		insightFilter,
-		result,
-		showModal,
 		updateUserInput,
 		handleFetchResult,
 		handleRefresh,
 		handleTherapyTypeChange,
 		handleInsightFilterChange,
-		handleCloseModal,
 	} = useAppContext()
-
-
 
 	useEffect(() => {
 		updateUserInput()
@@ -45,7 +39,6 @@ const DropdownContainer: React.FC = () => {
 			setAuthMessage('Please authenticate')
 		}
 	}, [authToken, setAuthMessage])
-
 
 	return (
 		<>
@@ -84,13 +77,7 @@ const DropdownContainer: React.FC = () => {
 				</UpdateMemoriesButton>
 				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
 			</TherapyModal>
-			{showModal && (
-				<ResponseModal
-					show={showModal}
-					result={result}
-					onClose={handleCloseModal}
-				/>
-			)}
+			<ResponseModal />
 		</>
 	)
 }

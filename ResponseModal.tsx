@@ -5,27 +5,20 @@ import {
 	Content,
 	CloseButton,
 } from './StyledComponents'
+import { useAppContext } from './AppContext'
 
-interface ResponseModalProps {
-	show: boolean
-	result: string // Change this from 'response' to 'result'
-	onClose: () => void
-}
+const ResponseModal: React.FC = () => {
+	const { showModal, result, handleCloseModal } = useAppContext()
 
-const ResponseModal: React.FC<ResponseModalProps> = ({
-	show,
-	result, // Change this from 'response' to 'result'
-	onClose,
-}) => {
-	if (!show) return null
+	if (!showModal) return null
 
 	return (
 		<ResponseModalContainer>
 			<Title>AI Response</Title>
-			<Content>{result}</Content>{' '}
-			{/* Change this from 'response' to 'result' */}
-			<CloseButton onClick={onClose}>X</CloseButton>
+			<Content>{result}</Content>
+			<CloseButton onClick={handleCloseModal}>X</CloseButton>
 		</ResponseModalContainer>
 	)
 }
+
 export default ResponseModal
