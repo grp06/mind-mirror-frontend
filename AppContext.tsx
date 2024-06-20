@@ -4,10 +4,12 @@ import {
 	fetchAndDisplayResult as fetchAndDisplayResultAPI,
 	fetchMemories as fetchMemoriesAPI,
 } from './apiHandler'
-import { TFile } from 'obsidian'
+import { TFile, MarkdownView } from 'obsidian'
+
 interface AppContextProps {
 	plugin: MyPlugin
 	apiKey: string
+	generatePrompt: () => string
 	setApiKey: (apiKey: string) => void
 	length: string
 	setLength: (length: string) => void
@@ -38,6 +40,12 @@ interface AppContextProps {
 	setResult: (result: string) => void
 	showModal: boolean
 	setShowModal: (showModal: boolean) => void
+	updateUserInput: () => void
+	handleFetchResult: () => Promise<void>
+	handleRefresh: () => Promise<void>
+	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handleCloseModal: () => void
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
@@ -54,12 +62,13 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 	)
 	const [email, setEmail] = useState('')
 	const [error, setError] = useState('')
-	const [authMessage, setAuthMessage] = useState('')
+
 	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
 	const [showModal, setShowModal] = useState(false)
+	const [authMessage, setAuthMessage] = useState('')
 
 	const getAIMemoriesContent = async (): Promise<string> => {
 		const aiMemoriesPath = 'AI-memories.md'
@@ -100,10 +109,71 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 		}
 	}
 
+	const generatePrompt = (): string => {
+		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.`
+	}
+
+	const updateUserInput = () => {
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+		if (view) {
+			setUserInput(view.editor.getValue())
+		} else {
+			setUserInput('')
+		}
+	}
+
+	const handleFetchResult = async () => {
+		try {
+			const prompt = generatePrompt()
+			const result = await fetchAndDisplayResult({
+				prompt,
+				userInput,
+				noteRange,
+			})
+			setResult(result)
+			setShowModal(true)
+		} catch (error) {
+			console.error('Error fetching result:', error)
+			// Handle the error appropriately (e.g., show an error message)
+		}
+	}
+
+	const handleRefresh = async () => {
+		try {
+			updateUserInput()
+			const prompt = generatePrompt()
+			const result = await fetchAndDisplayResult({
+				prompt,
+				userInput,
+				noteRange,
+			})
+			setResult(result)
+			setShowModal(true)
+		} catch (error) {
+			console.error('Error refreshing result:', error)
+			// Handle the error appropriately (e.g., show an error message)
+		}
+	}
+
+	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		setTherapyType(e.target.value)
+	}
+
+	const handleInsightFilterChange = (
+		e: React.ChangeEvent<HTMLSelectElement>,
+	) => {
+		setInsightFilter(e.target.value)
+	}
+
+	const handleCloseModal = () => {
+		setShowModal(false)
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
 				plugin,
+				generatePrompt,
 				apiKey,
 				setApiKey,
 				length,
@@ -131,6 +201,12 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 				setResult,
 				showModal,
 				setShowModal,
+				updateUserInput,
+				handleFetchResult,
+				handleRefresh,
+				handleTherapyTypeChange,
+				handleInsightFilterChange,
+				handleCloseModal,
 			}}
 		>
 			{children}

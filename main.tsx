@@ -5,7 +5,6 @@ import { ReactView } from './ReactView'
 import DropdownContainer from './DropdownContainer'
 import SettingsTab from './SettingsTab'
 import './styles.css'
-import { fetchAndDisplayResult, fetchMemories } from './apiHandler'
 import { AppProvider } from './AppContext' // Import AppProvider
 
 export default class MyPlugin extends Plugin {
@@ -38,14 +37,6 @@ export default class MyPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings)
-	}
-
-	generatePrompt(
-		therapyType: string,
-		insightFilter: string,
-		length: string,
-	): string {
-		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.`
 	}
 
 	setAuthMessage(message: string) {

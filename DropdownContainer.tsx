@@ -10,7 +10,6 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
-import { MarkdownView } from 'obsidian'
 
 const DropdownContainer: React.FC = () => {
 	const {
@@ -18,29 +17,19 @@ const DropdownContainer: React.FC = () => {
 		authToken,
 		authMessage,
 		setAuthMessage,
-		length,
-		noteRange,
-		fetchAndDisplayResult,
 		therapyType,
-		setTherapyType,
 		insightFilter,
-		setInsightFilter,
-		userInput,
-		setUserInput,
 		result,
-		setResult,
 		showModal,
-		setShowModal,
+		updateUserInput,
+		handleFetchResult,
+		handleRefresh,
+		handleTherapyTypeChange,
+		handleInsightFilterChange,
+		handleCloseModal,
 	} = useAppContext()
 
-	const updateUserInput = () => {
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (view) {
-			setUserInput(view.editor.getValue())
-		} else {
-			setUserInput('')
-		}
-	}
+
 
 	useEffect(() => {
 		updateUserInput()
@@ -57,52 +46,6 @@ const DropdownContainer: React.FC = () => {
 		}
 	}, [authToken, setAuthMessage])
 
-	const handleFetchResult = async () => {
-		try {
-			const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
-			const result = await fetchAndDisplayResult({
-				prompt,
-				userInput,
-				noteRange,
-			})
-			setResult(result)
-			setShowModal(true)
-		} catch (error) {
-			console.error('Error fetching result:', error)
-			// Handle the error appropriately (e.g., show an error message)
-		}
-	}
-
-	const handleRefresh = async () => {
-		try {
-			updateUserInput()
-			const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
-			const result = await fetchAndDisplayResult({
-				prompt,
-				userInput,
-				noteRange,
-			})
-			setResult(result)
-			setShowModal(true)
-		} catch (error) {
-			console.error('Error refreshing result:', error)
-			// Handle the error appropriately (e.g., show an error message)
-		}
-	}
-
-	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setTherapyType(e.target.value)
-	}
-
-	const handleInsightFilterChange = (
-		e: React.ChangeEvent<HTMLSelectElement>,
-	) => {
-		setInsightFilter(e.target.value)
-	}
-
-	const handleCloseModal = () => {
-		setShowModal(false)
-	}
 
 	return (
 		<>
