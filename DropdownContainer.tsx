@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import MyPlugin from './main'
+import { useAppContext } from './AppContext'
 import { therapyTypes, insightFilters } from './data'
 import {
 	InputItem,
@@ -9,14 +9,12 @@ import {
 	UpdateMemoriesButton,
 	RefreshButton,
 } from './StyledComponents'
-import { MarkdownView } from 'obsidian'
 import ResponseModal from './ResponseModal'
+import { MarkdownView } from 'obsidian'
 
-interface DropdownContainerProps {
-	plugin: MyPlugin
-}
-
-const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
+const DropdownContainer: React.FC = () => {
+	const { plugin, authToken, authMessage, setAuthMessage, length, noteRange } =
+		useAppContext()
 	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
@@ -25,7 +23,6 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 
 	const updateUserInput = () => {
 		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-
 		if (view) {
 			setUserInput(view.editor.getValue())
 		} else {
@@ -42,40 +39,24 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 		}
 	}, [plugin])
 
+	useEffect(() => {
+		if (!authToken) {
+			setAuthMessage('Click settings to sign in or use your OpenAI API key')
+		}
+	}, [authToken, setAuthMessage])
+
 	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const selectedTherapyType = e.target.value
-		setTherapyType(selectedTherapyType)
-		console.log(`Therapy Type selected: ${selectedTherapyType}`)
+		setTherapyType(e.target.value)
 	}
 
 	const handleInsightFilterChange = (
 		e: React.ChangeEvent<HTMLSelectElement>,
 	) => {
-		const selectedInsightFilter = e.target.value
-		setInsightFilter(selectedInsightFilter)
-		console.log(`Insight Filter selected: ${selectedInsightFilter}`)
+		setInsightFilter(e.target.value)
 	}
 
 	const handleRefresh = async () => {
-		console.log('Refreshing...')
-		if (!plugin.settings || typeof plugin.settings.length !== 'string') {
-			console.log('Error: Plugin settings not loaded or length is not a string')
-			setResult('Error: Plugin settings not loaded or length is not a string')
-			return
-		}
-
-		const length = plugin.settings.length
-		console.log('🚀 ~ handleRefresh ~ length:', length)
-		const noteRange = plugin.settings.noteRange
-		console.log('🚀 ~ handleRefresh ~ noteRange:', noteRange)
-
 		const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
-		console.log('🚀 ~ handleRefresh ~ length:', length)
-		console.log('🚀 ~ handleRefresh ~ insightFilter:', insightFilter)
-		console.log('🚀 ~ handleRefresh ~ therapyType:', therapyType)
-		console.log('🚀 ~ handleRefresh ~ prompt:', prompt)
-
-		setResult('Fetching feedback...')
 
 		try {
 			const response = await plugin.fetchAndDisplayResult({
@@ -85,14 +66,18 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 			})
 			setResult(response)
 			setShowModal(true)
-			console.log('API Response:', response)
 		} catch (error) {
 			setResult('Error: ' + error.message)
 		}
 	}
 
+	const handleCloseModal = () => {
+		setShowModal(false)
+	}
+
 	return (
 		<>
+			{authMessage && <div>{authMessage}</div>}
 			<TherapyModal>
 				<InputItem>
 					<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
@@ -125,7 +110,11 @@ const DropdownContainer: React.FC<DropdownContainerProps> = ({ plugin }) => {
 				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
 				<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
 			</TherapyModal>
-			<ResponseModal show={showModal} response={result} />{' '}
+			<ResponseModal
+				show={showModal}
+				response={result}
+				onClose={handleCloseModal}
+			/>
 		</>
 	)
 }

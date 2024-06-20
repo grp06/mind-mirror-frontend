@@ -6,9 +6,8 @@ import {
 	CloseButton,
 	Button,
 	ButtonContainer,
-	ErrorMessage, // Import the styled component for error messages
+	ErrorMessage,
 } from './StyledComponents'
-import { Notice } from 'obsidian'
 
 interface EmailModalProps {
 	isOpen: boolean
@@ -18,7 +17,7 @@ interface EmailModalProps {
 		password: string,
 		isSignUp: boolean,
 	) => Promise<boolean>
-	resetFormFields: () => void // Add resetFormFields prop
+	resetFormFields: () => void
 }
 
 const EmailModal: React.FC<EmailModalProps> = ({
@@ -50,7 +49,6 @@ const EmailModal: React.FC<EmailModalProps> = ({
 				onClose()
 			}
 		} catch (error) {
-			console.log('🚀 ~ handleSubmit ~ error:', error)
 			setError(error.message || 'An error occurred. Please try again.')
 		}
 	}

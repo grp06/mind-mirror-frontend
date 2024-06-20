@@ -150,7 +150,7 @@ export const ModalWrapper = styled.div`
 export const ModalContent = styled.div`
 	background: #2c2c2c;
 	color: #f0f0f0;
-	padding: 20px;
+	padding: 15px;
 	border-radius: 8px;
 	width: 300px;
 	position: relative;
@@ -162,7 +162,7 @@ export const CloseButton = styled.button`
 	right: 10px;
 	background: none;
 	border: none;
-	font-size: 16px;
+	font-size: 12px;
 	cursor: pointer;
 `
 

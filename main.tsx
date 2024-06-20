@@ -3,9 +3,10 @@ import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import { ReactView } from './ReactView'
 import DropdownContainer from './DropdownContainer'
-import SettingsTab from './SettingsTab' // Ensure correct import
+import SettingsTab from './SettingsTab'
 import './styles.css'
 import { fetchAndDisplayResult, fetchMemories } from './apiHandler'
+import { AppProvider } from './AppContext' // Import AppProvider
 
 export default class MyPlugin extends Plugin {
 	root: Root | null = null
@@ -15,17 +16,19 @@ export default class MyPlugin extends Plugin {
 		noteRange: 'current',
 	}
 
+	authMessage = ''
+
 	async onload() {
 		await this.loadSettings()
-		this.addSettingTab(new SettingsTab(this.app, this)) // Ensure correct usage
+		this.addSettingTab(new SettingsTab(this.app, this))
 		const reactContainer = document.createElement('div')
 		document.body.appendChild(reactContainer)
 		this.root = createRoot(reactContainer)
 		this.root.render(
-			<>
+			<AppProvider plugin={this}>
 				<ReactView />
-				<DropdownContainer plugin={this} />
-			</>,
+				<DropdownContainer />
+			</AppProvider>,
 		)
 	}
 
@@ -94,6 +97,10 @@ export default class MyPlugin extends Plugin {
 		length: string,
 	): string {
 		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.`
+	}
+
+	setAuthMessage(message: string) {
+		this.authMessage = message
 	}
 
 	onunload() {

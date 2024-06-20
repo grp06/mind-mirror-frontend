@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { App, PluginSettingTab, Notice } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
-import MyPlugin from './main'
+import { useAppContext, AppProvider } from './AppContext' // Ensure AppProvider is imported
 import EmailModal from './EmailModal'
 import {
 	Wrapper,
@@ -15,37 +15,25 @@ import {
 	EmailDisplay,
 } from './StyledComponents'
 
-interface SettingsTabProps {
-	plugin: MyPlugin
-}
-
-const SettingsTabContent: React.FC<SettingsTabProps> = ({ plugin }) => {
-	const [apiKey, setApiKey] = useState(plugin.settings.apiKey)
-	const [length, setLength] = useState(plugin.settings.length)
-	const [noteRange, setNoteRange] = useState(plugin.settings.noteRange)
-	const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'))
-	const [email, setEmail] = useState('') // Add email state
-	const [password, setPassword] = useState('') // Add password state
-	const [repeatPassword, setRepeatPassword] = useState('') // Add repeatPassword state
-	const [error, setError] = useState('') // Add error state
+const SettingsTabContent: React.FC = () => {
+	const {
+		apiKey,
+		setApiKey,
+		length,
+		setLength,
+		noteRange,
+		setNoteRange,
+		authToken,
+		setAuthToken,
+		email,
+		setEmail,
+		error,
+		setError,
+		plugin,
+	} = useAppContext()
 	const [isModalOpen, setIsModalOpen] = useState(false)
-
-	useEffect(() => {
-		const saveSettings = async () => {
-			plugin.settings.apiKey = apiKey
-			plugin.settings.length = length
-			plugin.settings.noteRange = noteRange
-			await plugin.saveSettings()
-		}
-		saveSettings()
-	}, [apiKey, length, noteRange, plugin])
-
-	useEffect(() => {
-		if (authToken) {
-			const payload = JSON.parse(atob(authToken.split('.')[1]))
-			setEmail(payload.email) // Set email from token payload
-		}
-	}, [authToken])
+	const [password, setPassword] = useState('') // Added state for password
+	const [repeatPassword, setRepeatPassword] = useState('') // Added state for repeatPassword
 
 	const handleSaveButtonClick = async () => {
 		await plugin.saveSettings()
@@ -54,12 +42,11 @@ const SettingsTabContent: React.FC<SettingsTabProps> = ({ plugin }) => {
 
 	const handleAuthButtonClick = () => {
 		if (authToken) {
-			// Clear local storage and auth token state
 			localStorage.removeItem('authToken')
 			setAuthToken(null)
 			setEmail('')
 			new Notice('Signed out successfully')
-			setIsModalOpen(false) // Close the modal if open
+			setIsModalOpen(false)
 		} else {
 			setIsModalOpen(true)
 		}
@@ -150,18 +137,19 @@ const SettingsTabContent: React.FC<SettingsTabProps> = ({ plugin }) => {
 				onSubmit={handleAuthSubmit}
 				resetFormFields={() => {
 					setEmail('')
-					setPassword('')
-					setRepeatPassword('')
+					setPassword('') // Reset password
+					setRepeatPassword('') // Reset repeatPassword
 					setError('')
 				}}
 			/>
-			{authToken && <EmailDisplay>Signed in as: {email}</EmailDisplay>}{' '}
+			{authToken && <EmailDisplay>Signed in as: {email}</EmailDisplay>}
 		</Wrapper>
 	)
 }
+
 export default class SettingsTab extends PluginSettingTab {
 	plugin: MyPlugin
-	root: Root | null = null // Add root property
+	root: Root | null = null
 
 	constructor(app: App, plugin: MyPlugin) {
 		super(app, plugin)
@@ -170,10 +158,15 @@ export default class SettingsTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this
-		containerEl.empty()
-		if (!this.root) {
-			this.root = createRoot(containerEl) // Create root only if it doesn't exist
+		if (this.root) {
+			this.root.unmount()
 		}
-		this.root.render(<SettingsTabContent plugin={this.plugin} />)
+		containerEl.empty()
+		this.root = createRoot(containerEl)
+		this.root.render(
+			<AppProvider plugin={this.plugin}>
+				<SettingsTabContent />
+			</AppProvider>,
+		)
 	}
 }
