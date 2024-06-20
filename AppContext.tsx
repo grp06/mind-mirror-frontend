@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import MyPlugin from './main'
-
+import {
+	fetchAndDisplayResult as fetchAndDisplayResultAPI,
+	fetchMemories as fetchMemoriesAPI,
+} from './apiHandler'
+import { TFile } from 'obsidian'
 interface AppContextProps {
 	plugin: MyPlugin
 	apiKey: string
@@ -17,6 +21,23 @@ interface AppContextProps {
 	setError: (error: string) => void
 	authMessage: string
 	setAuthMessage: (message: string) => void
+	fetchAndDisplayResult: (params: {
+		prompt: string
+		userInput: string
+		noteRange: string
+	}) => Promise<string>
+	fetchMemories: (userInput: string) => Promise<string>
+	openAIMemoriesNote: () => Promise<void>
+	therapyType: string
+	setTherapyType: (therapyType: string) => void
+	insightFilter: string
+	setInsightFilter: (insightFilter: string) => void
+	userInput: string
+	setUserInput: (userInput: string) => void
+	result: string
+	setResult: (result: string) => void
+	showModal: boolean
+	setShowModal: (showModal: boolean) => void
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
@@ -33,25 +54,51 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 	)
 	const [email, setEmail] = useState('')
 	const [error, setError] = useState('')
-	const [authMessage, setAuthMessage] = useState(plugin.authMessage)
+	const [authMessage, setAuthMessage] = useState('')
+	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
+	const [insightFilter, setInsightFilter] = useState('Give Feedback')
+	const [userInput, setUserInput] = useState('')
+	const [result, setResult] = useState('')
+	const [showModal, setShowModal] = useState(false)
 
-	useEffect(() => {
-		const saveSettings = async () => {
-			plugin.settings.apiKey = apiKey
-			plugin.settings.length = length
-			plugin.settings.noteRange = noteRange
-			await plugin.saveSettings()
+	const getAIMemoriesContent = async (): Promise<string> => {
+		const aiMemoriesPath = 'AI-memories.md'
+		const aiMemoriesFile =
+			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
+		if (aiMemoriesFile instanceof TFile) {
+			return await plugin.app.vault.read(aiMemoriesFile)
 		}
-		saveSettings()
-	}, [apiKey, length, noteRange, plugin])
+		return ''
+	}
 
-	useEffect(() => {
-		if (authToken) {
-			const payload = JSON.parse(atob(authToken.split('.')[1]))
-			setEmail(payload.email)
-			setAuthMessage('')
+	const fetchAndDisplayResult = async (params: {
+		prompt: string
+		userInput: string
+		noteRange: string
+	}): Promise<string> => {
+		const response = await fetchAndDisplayResultAPI(
+			plugin,
+			params,
+			getAIMemoriesContent,
+		)
+		setResult(response) // Update the result state
+		setShowModal(true) // Show the modal
+		return response
+	}
+
+	const fetchMemories = async (userInput: string): Promise<string> => {
+		return await fetchMemoriesAPI(plugin, userInput, getAIMemoriesContent)
+	}
+
+	const openAIMemoriesNote = async (): Promise<void> => {
+		const notePath = 'AI-memories.md'
+		const memoryFile = plugin.app.vault.getAbstractFileByPath(notePath)
+
+		if (memoryFile instanceof TFile) {
+			const leaf = plugin.app.workspace.getLeaf(true)
+			await leaf.openFile(memoryFile)
 		}
-	}, [authToken, plugin])
+	}
 
 	return (
 		<AppContext.Provider
@@ -71,6 +118,19 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 				setError,
 				authMessage,
 				setAuthMessage,
+				fetchAndDisplayResult,
+				fetchMemories,
+				openAIMemoriesNote,
+				therapyType,
+				setTherapyType,
+				insightFilter,
+				setInsightFilter,
+				userInput,
+				setUserInput,
+				result,
+				setResult,
+				showModal,
+				setShowModal,
 			}}
 		>
 			{children}
@@ -85,3 +145,6 @@ export const useAppContext = () => {
 	}
 	return context
 }
+
+// Export AppContext to fix the import error
+export { AppContext }

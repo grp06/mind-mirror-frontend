@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useAppContext } from './AppContext'
 import { therapyTypes, insightFilters } from './data'
 import {
@@ -13,13 +13,25 @@ import ResponseModal from './ResponseModal'
 import { MarkdownView } from 'obsidian'
 
 const DropdownContainer: React.FC = () => {
-	const { plugin, authToken, authMessage, setAuthMessage, length, noteRange } =
-		useAppContext()
-	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
-	const [insightFilter, setInsightFilter] = useState('Give Feedback')
-	const [userInput, setUserInput] = useState('')
-	const [result, setResult] = useState('')
-	const [showModal, setShowModal] = useState(false)
+	const {
+		plugin,
+		authToken,
+		authMessage,
+		setAuthMessage,
+		length,
+		noteRange,
+		fetchAndDisplayResult,
+		therapyType,
+		setTherapyType,
+		insightFilter,
+		setInsightFilter,
+		userInput,
+		setUserInput,
+		result,
+		setResult,
+		showModal,
+		setShowModal,
+	} = useAppContext()
 
 	const updateUserInput = () => {
 		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
@@ -41,9 +53,42 @@ const DropdownContainer: React.FC = () => {
 
 	useEffect(() => {
 		if (!authToken) {
-			setAuthMessage('Click settings to sign in or use your OpenAI API key')
+			setAuthMessage('Please authenticate')
 		}
 	}, [authToken, setAuthMessage])
+
+	const handleFetchResult = async () => {
+		try {
+			const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
+			const result = await fetchAndDisplayResult({
+				prompt,
+				userInput,
+				noteRange,
+			})
+			setResult(result)
+			setShowModal(true)
+		} catch (error) {
+			console.error('Error fetching result:', error)
+			// Handle the error appropriately (e.g., show an error message)
+		}
+	}
+
+	const handleRefresh = async () => {
+		try {
+			updateUserInput()
+			const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
+			const result = await fetchAndDisplayResult({
+				prompt,
+				userInput,
+				noteRange,
+			})
+			setResult(result)
+			setShowModal(true)
+		} catch (error) {
+			console.error('Error refreshing result:', error)
+			// Handle the error appropriately (e.g., show an error message)
+		}
+	}
 
 	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setTherapyType(e.target.value)
@@ -53,22 +98,6 @@ const DropdownContainer: React.FC = () => {
 		e: React.ChangeEvent<HTMLSelectElement>,
 	) => {
 		setInsightFilter(e.target.value)
-	}
-
-	const handleRefresh = async () => {
-		const prompt = plugin.generatePrompt(therapyType, insightFilter, length)
-
-		try {
-			const response = await plugin.fetchAndDisplayResult({
-				prompt,
-				userInput,
-				noteRange,
-			})
-			setResult(response)
-			setShowModal(true)
-		} catch (error) {
-			setResult('Error: ' + error.message)
-		}
 	}
 
 	const handleCloseModal = () => {
@@ -107,14 +136,18 @@ const DropdownContainer: React.FC = () => {
 						))}
 					</Select>
 				</InputItem>
+				<UpdateMemoriesButton onClick={handleFetchResult}>
+					Update Memories
+				</UpdateMemoriesButton>
 				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
-				<UpdateMemoriesButton>Update Memories</UpdateMemoriesButton>
 			</TherapyModal>
-			<ResponseModal
-				show={showModal}
-				response={result}
-				onClose={handleCloseModal}
-			/>
+			{showModal && (
+				<ResponseModal
+					show={showModal}
+					result={result}
+					onClose={handleCloseModal}
+				/>
+			)}
 		</>
 	)
 }

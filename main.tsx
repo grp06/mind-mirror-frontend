@@ -40,57 +40,6 @@ export default class MyPlugin extends Plugin {
 		await this.saveData(this.settings)
 	}
 
-	async fetchAndDisplayResult({
-		prompt,
-		userInput,
-		noteRange,
-	}: {
-		prompt: string
-		userInput: string
-		noteRange: string
-	}): Promise<string> {
-		return await fetchAndDisplayResult(this, {
-			prompt,
-			userInput,
-			noteRange,
-		})
-	}
-
-	async getAIMemoriesContent(): Promise<string> {
-		const aiMemoriesPath = 'AI-memories.md'
-		const aiMemoriesFile = this.app.vault.getAbstractFileByPath(aiMemoriesPath)
-		if (aiMemoriesFile instanceof TFile) {
-			return await this.app.vault.read(aiMemoriesFile)
-		}
-		return ''
-	}
-
-	async fetchMemories(userInput: string): Promise<string> {
-		const aiMemoriesPath = 'AI-memories.md'
-		const aiMemoriesFile = this.app.vault.getAbstractFileByPath(aiMemoriesPath)
-		let aiMemoriesContent = ''
-
-		if (aiMemoriesFile instanceof TFile) {
-			aiMemoriesContent = await this.app.vault.read(aiMemoriesFile)
-			console.log(
-				'🚀 ~ MyPlugin ~ fetchMemories ~ aiMemoriesContent:',
-				aiMemoriesContent,
-			)
-		}
-
-		return await fetchMemories(this, userInput, aiMemoriesContent)
-	}
-
-	async openAIMemoriesNote() {
-		const notePath = 'AI-memories.md'
-		const memoryFile = this.app.vault.getAbstractFileByPath(notePath)
-
-		if (memoryFile instanceof TFile) {
-			const leaf = this.app.workspace.getLeaf(true)
-			await leaf.openFile(memoryFile)
-		}
-	}
-
 	generatePrompt(
 		therapyType: string,
 		insightFilter: string,
@@ -101,9 +50,5 @@ export default class MyPlugin extends Plugin {
 
 	setAuthMessage(message: string) {
 		this.authMessage = message
-	}
-
-	onunload() {
-		this.root?.unmount()
 	}
 }
