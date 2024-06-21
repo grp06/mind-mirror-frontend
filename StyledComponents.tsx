@@ -101,6 +101,8 @@ export const SaveButton = styled.button`
 export const TherapyModal = styled(Wrapper)`
 	position: absolute;
 	bottom: 35px;
+	max-height: 30vh;
+	overflow-y: auto;
 	right: 15px;
 	width: 300px;
 	background-color: #2c2c2c;
@@ -112,6 +114,8 @@ export const TherapyModal = styled(Wrapper)`
 export const ResponseModalContainer = styled.div`
 	position: absolute;
 	top: 45px;
+	max-height: 70vh;
+	overflow-y: auto;
 	right: 14px;
 	background-color: #2c2c2c;
 	border: 1px solid #555;

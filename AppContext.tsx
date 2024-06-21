@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, {
+	createContext,
+	useContext,
+	useState,
+	ReactNode,
+	useEffect,
+} from 'react'
 import MyPlugin from './main'
 import {
 	fetchAndDisplayResult as fetchAndDisplayResultAPI,
@@ -48,16 +54,21 @@ interface AppContextProps {
 	handleCloseModal: () => void
 	handlePlusClick: (advice: string) => Promise<void>
 	handleHeartClick: (advice: string) => Promise<void>
+	saveMemoriesToNote: (memories: string) => Promise<void>
+	getMemoriesContent: () => Promise<string>
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
-
-export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
+interface AppProviderProps {
+	plugin: MyPlugin
+	children: ReactNode
+}
+export const AppProvider: React.FC<AppProviderProps> = ({
 	plugin,
 	children,
 }) => {
 	const [apiKey, setApiKey] = useState(plugin.settings.apiKey)
-	const [length, setLength] = useState(plugin.settings.length)
+
 	const [noteRange, setNoteRange] = useState(plugin.settings.noteRange)
 	const [authToken, setAuthToken] = useState<string | null>(
 		localStorage.getItem('authToken'),
@@ -72,15 +83,12 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 	const [showModal, setShowModal] = useState(false)
 	const [authMessage, setAuthMessage] = useState('')
 
-	const getAIMemoriesContent = async (): Promise<string> => {
-		const aiMemoriesPath = 'AI-memories.md'
-		const aiMemoriesFile =
-			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
-		if (aiMemoriesFile instanceof TFile) {
-			return await plugin.app.vault.read(aiMemoriesFile)
-		}
-		return ''
-	}
+	const [length, setLength] = useState(plugin.settings.length)
+
+	useEffect(() => {
+		plugin.settings.length = length
+		plugin.saveSettings()
+	}, [length, plugin])
 
 	const fetchAndDisplayResult = async (params: {
 		prompt: string
@@ -89,12 +97,32 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 	}): Promise<string> => {
 		const response = await fetchAndDisplayResultAPI(
 			plugin,
-			params,
+			{ ...params, length },
 			getAIMemoriesContent,
 		)
-		setResult(response) // Update the result state
-		setShowModal(true) // Show the modal
+		setResult(response)
+		setShowModal(true)
 		return response
+	}
+
+	useEffect(() => {
+		const loadSettings = () => {
+			setApiKey(plugin.settings.apiKey)
+			setLength(plugin.settings.length)
+			setNoteRange(plugin.settings.noteRange)
+		}
+
+		loadSettings()
+	}, [plugin])
+
+	const getAIMemoriesContent = async (): Promise<string> => {
+		const aiMemoriesPath = 'AI-memories.md'
+		const aiMemoriesFile =
+			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
+		if (aiMemoriesFile instanceof TFile) {
+			return await plugin.app.vault.read(aiMemoriesFile)
+		}
+		return ''
 	}
 
 	const fetchMemories = async (userInput: string): Promise<string> => {
@@ -136,7 +164,6 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 			setShowModal(true)
 		} catch (error) {
 			console.error('Error fetching result:', error)
-			// Handle the error appropriately (e.g., show an error message)
 		}
 	}
 
@@ -153,7 +180,6 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 			setShowModal(true)
 		} catch (error) {
 			console.error('Error refreshing result:', error)
-			// Handle the error appropriately (e.g., show an error message)
 		}
 	}
 
@@ -206,6 +232,40 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 			await plugin.app.vault.create('ai-feedback.md', newContent)
 		}
 	}
+	const saveMemoriesToNote = async (memories: string) => {
+		const notePath = 'AI-memories.md'
+		const memoryFile = plugin.app.vault.getAbstractFileByPath(notePath)
+
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!view) return
+		const currentNoteFile = view.file
+		const currentNoteDate = currentNoteFile?.basename
+		const memoriesWithDate = memories
+			.split('\n')
+			.map((memory) => `${memory} - ${currentNoteDate}`)
+			.join('\n')
+
+		if (memoryFile instanceof TFile) {
+			const content = await plugin.app.vault.read(memoryFile)
+			const updatedContent = `${memoriesWithDate}\n\n${content}`
+			await plugin.app.vault.modify(memoryFile, updatedContent)
+		} else {
+			await plugin.app.vault.create(notePath, memoriesWithDate)
+		}
+
+		await openAIMemoriesNote()
+	}
+
+	const getMemoriesContent = async (): Promise<string> => {
+		const aiMemoriesPath = 'AI-memories.md'
+		const aiMemoriesFile =
+			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
+		if (aiMemoriesFile instanceof TFile) {
+			console.log('🚀 ~ getMemoriesContent ~ aiMemoriesFile:', aiMemoriesFile)
+			return await plugin.app.vault.read(aiMemoriesFile)
+		}
+		return ''
+	}
 
 	return (
 		<AppContext.Provider
@@ -247,6 +307,8 @@ export const AppProvider: React.FC<{ plugin: MyPlugin }> = ({
 				handleCloseModal,
 				handlePlusClick,
 				handleHeartClick,
+				saveMemoriesToNote,
+				getMemoriesContent,
 			}}
 		>
 			{children}
@@ -262,5 +324,4 @@ export const useAppContext = () => {
 	return context
 }
 
-// Export AppContext to fix the import error
 export { AppContext }

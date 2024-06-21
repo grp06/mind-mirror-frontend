@@ -4,10 +4,12 @@ export async function fetchAndDisplayResult(
 		prompt,
 		userInput,
 		noteRange,
+		length,
 	}: {
 		prompt: string
 		userInput: string
 		noteRange: string
+		length: string
 	},
 	getAIMemoriesContent: () => Promise<string>,
 ): Promise<string> {
@@ -40,6 +42,7 @@ export async function fetchAndDisplayResult(
 				prompt: prompt,
 				notes_content: notesContent,
 				memories_content: memoriesContent,
+				length: length,
 				...(userApiKey && { user_api_key: userApiKey }),
 			}),
 		})

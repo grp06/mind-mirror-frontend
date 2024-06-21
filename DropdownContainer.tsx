@@ -24,6 +24,8 @@ const DropdownContainer: React.FC = () => {
 		handleRefresh,
 		handleTherapyTypeChange,
 		handleInsightFilterChange,
+		saveMemoriesToNote,
+		getMemoriesContent, // Add this line
 	} = useAppContext()
 
 	useEffect(() => {
@@ -40,6 +42,12 @@ const DropdownContainer: React.FC = () => {
 			setAuthMessage('Please authenticate')
 		}
 	}, [authToken, setAuthMessage])
+
+	const handleSaveMemories = async () => {
+		const memories = await getMemoriesContent() // Fetch actual memories content
+		console.log('🚀 ~ handleSaveMemories ~ memories:', memories)
+		await saveMemoriesToNote(memories)
+	}
 
 	return (
 		<>
@@ -73,10 +81,8 @@ const DropdownContainer: React.FC = () => {
 						))}
 					</Select>
 				</InputItem>
-				<UpdateMemoriesButton onClick={handleFetchResult}>
-					Update Memories
-				</UpdateMemoriesButton>
 				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
+				<button onClick={handleSaveMemories}>Save Memories</button>
 			</TherapyModal>
 			<ResponseModal />
 		</>

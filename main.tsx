@@ -25,8 +25,10 @@ export default class MyPlugin extends Plugin {
 		this.root = createRoot(reactContainer)
 		this.root.render(
 			<AppProvider plugin={this}>
-				<ReactView />
-				<DropdownContainer />
+				<>
+					<ReactView />
+					<DropdownContainer />
+				</>
 			</AppProvider>,
 		)
 	}

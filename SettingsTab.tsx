@@ -90,7 +90,12 @@ const SettingsTabContent: React.FC = () => {
 			return false
 		}
 	}
-
+	const handleLengthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newLength = e.target.value
+		setLength(newLength)
+		plugin.settings.length = newLength
+		plugin.saveSettings()
+	}
 	return (
 		<Wrapper>
 			<h2>Mind Mirror Settings</h2>
@@ -105,7 +110,7 @@ const SettingsTabContent: React.FC = () => {
 			</InputItem>
 			<InputItem>
 				<Label>Length</Label>
-				<Select value={length} onChange={(e) => setLength(e.target.value)}>
+				<Select value={length} onChange={handleLengthChange}>
 					<option value="one sentence">One Sentence</option>
 					<option value="three sentences">Three Sentences</option>
 					<option value="one paragraph">One Paragraph</option>
