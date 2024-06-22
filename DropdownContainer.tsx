@@ -9,7 +9,7 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
-import { therapyTypes, insightFilters } from './data'
+import { therapyTypes, insightFilters, vibeOptions } from './data'
 
 const DropdownContainer: React.FC = () => {
 	const {
@@ -25,6 +25,8 @@ const DropdownContainer: React.FC = () => {
 		handleInsightFilterChange,
 		saveMemoriesToNote,
 		getMemoriesContent,
+		vibe,
+		handleVibeChange,
 	} = useAppContext()
 
 	useEffect(() => {
@@ -76,6 +78,16 @@ const DropdownContainer: React.FC = () => {
 						{insightFilters.map((filter) => (
 							<option key={filter} value={filter}>
 								{filter}
+							</option>
+						))}
+					</Select>
+				</InputItem>
+				<InputItem>
+					<Label htmlFor="vibe-dropdown">Vibe</Label>
+					<Select id="vibe-dropdown" value={vibe} onChange={handleVibeChange}>
+						{vibeOptions.map((option) => (
+							<option key={option} value={option}>
+								{option}
 							</option>
 						))}
 					</Select>

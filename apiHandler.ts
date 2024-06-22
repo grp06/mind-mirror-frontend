@@ -5,11 +5,13 @@ export async function fetchAndDisplayResult(
 		userInput,
 		noteRange,
 		length,
+		vibe,
 	}: {
 		prompt: string
 		userInput: string
 		noteRange: string
 		length: string
+		vibe: string
 	},
 	getAIMemoriesContent: () => Promise<string>,
 ): Promise<string> {
@@ -43,6 +45,7 @@ export async function fetchAndDisplayResult(
 				notes_content: notesContent,
 				memories_content: memoriesContent,
 				length: length,
+				vibe: vibe,
 				...(userApiKey && { user_api_key: userApiKey }),
 			}),
 		})
@@ -88,6 +91,8 @@ export async function fetchMemories(
 				prompt: 'Retrieve relevant memories',
 				notes_content: userInput,
 				memories_content: memoriesContent,
+				length: 'short',
+				vibe: 'neutral',
 				...(userApiKey && { user_api_key: userApiKey }),
 			}),
 		})

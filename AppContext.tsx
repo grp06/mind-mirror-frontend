@@ -13,6 +13,12 @@ import {
 	fetchMemories as fetchMemoriesAPI,
 } from './apiHandler'
 import { TFile, MarkdownView } from 'obsidian'
+interface FetchAndDisplayResultParams {
+	prompt: string
+	userInput: string
+	noteRange: string
+	vibe: string
+}
 
 interface AppContextProps {
 	plugin: MyPlugin
@@ -31,11 +37,6 @@ interface AppContextProps {
 	setError: (error: string) => void
 	authMessage: string
 	setAuthMessage: (message: string) => void
-	fetchAndDisplayResult: (params: {
-		prompt: string
-		userInput: string
-		noteRange: string
-	}) => Promise<string>
 	fetchMemories: (userInput: string) => Promise<string>
 	openAIMemoriesNote: () => Promise<void>
 	therapyType: string
@@ -61,6 +62,9 @@ interface AppContextProps {
 	toggleEmotionsBar: () => void
 	isEmotionsBarVisible: boolean
 	emotionsBarRef: React.RefObject<HTMLDivElement>
+	vibe: string
+	setVibe: (vibe: string) => void
+	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
@@ -87,7 +91,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [authMessage, setAuthMessage] = useState('')
 	const [length, setLength] = useState(plugin.settings.length)
 	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(false)
-	console.log('🚀 ~ isEmotionsBarVisible:', isEmotionsBarVisible)
+	const [vibe, setVibe] = useState('Neutral')
 
 	const emotionsBarRef = useRef<HTMLDivElement>(null)
 
@@ -96,11 +100,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		plugin.saveSettings()
 	}, [length, plugin])
 
-	const fetchAndDisplayResult = async (params: {
-		prompt: string
-		userInput: string
-		noteRange: string
-	}): Promise<string> => {
+	const fetchAndDisplayResult = async (
+		params: FetchAndDisplayResultParams,
+	): Promise<string> => {
 		const response = await fetchAndDisplayResultAPI(
 			plugin,
 			{ ...params, length },
@@ -145,8 +147,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		}
 	}
 
+	const handleVibeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		setVibe(e.target.value)
+	}
+
 	const generatePrompt = (): string => {
-		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}.`
+		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}. Your response must have the vibe of ${vibe}.`
 	}
 
 	const updateUserInput = () => {
@@ -165,6 +171,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				prompt,
 				userInput,
 				noteRange,
+				vibe,
 			})
 			setResult(result)
 			setShowModal(true)
@@ -181,6 +188,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				prompt,
 				userInput,
 				noteRange,
+				vibe,
 			})
 			setResult(result)
 			setShowModal(true)
@@ -345,6 +353,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				isEmotionsBarVisible,
 				toggleEmotionsBar,
 				emotionsBarRef,
+				vibe,
+				setVibe,
+				handleVibeChange,
 			}}
 		>
 			{children}

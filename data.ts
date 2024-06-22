@@ -1,6 +1,8 @@
 export const therapyTypes = [
 	'Cognitive Behavioral Therapy',
 	'Solution Focused Brief Therapy',
+	'Acceptance and Commitment Therapy',
+	'Somatic Experience',
 	'Gestalt Therapy',
 	'Mindfulness Based Cognitive Therapy',
 	'Psychodynamic Therapy',
@@ -8,7 +10,6 @@ export const therapyTypes = [
 	'Existential Therapy',
 	'Interpersonal Therapy',
 	'Family Systems Therapy',
-	'Somatic Experience',
 ]
 
 export const insightFilters = [
@@ -24,6 +25,20 @@ export const insightFilters = [
 	'Plan Next Steps',
 ]
 
+export const vibeOptions = [
+	'Neutral',
+	'Empathetic',
+	'Tough Love',
+	'Optimistic',
+	'Analytical',
+	'Playful',
+	'Motivational',
+	'Reflective',
+	'Compassionate',
+	'Pragmatic',
+	'Critical',
+	'A real asshole',
+]
 export interface FeelingCategory {
 	level0: string
 	level1: string[]
