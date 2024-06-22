@@ -1,4 +1,4 @@
-export async function fetchAndDisplayResult(
+export async function fetchTherapyResponse(
 	plugin: any,
 	{
 		prompt,
@@ -59,7 +59,7 @@ export async function fetchAndDisplayResult(
 
 		return data.choices[0].message.content
 	} catch (error) {
-		console.log('🚀 ~ fetchAndDisplayResult ~ error:', error)
+		console.log('🚀 ~ fetchTherapyResponse ~ error:', error)
 		throw error
 	}
 }

@@ -2,76 +2,32 @@ import React, {
 	createContext,
 	useContext,
 	useState,
-	ReactNode,
 	useEffect,
 	useRef,
 	useCallback,
 } from 'react'
-import MyPlugin from './main'
+import { fetchTherapyResponse as fetchTherapyResponseAPI } from './apiHandler'
 import {
-	fetchAndDisplayResult as fetchAndDisplayResultAPI,
-	fetchMemories as fetchMemoriesAPI,
-} from './apiHandler'
-import { TFile, MarkdownView } from 'obsidian'
-interface FetchAndDisplayResultParams {
-	prompt: string
-	userInput: string
-	noteRange: string
-	vibe: string
-}
+	fetchMemories,
+	openAIMemoriesNote,
+	saveMemoriesToNote,
+	getMemoriesContent,
+	getAIMemoriesContent,
+} from './memoryUtils'
+import {
+	AppContextProps,
+	AppProviderProps,
+	FetchTherapyResponseParams,
+} from './types'
 
-interface AppContextProps {
-	plugin: MyPlugin
-	apiKey: string
-	generatePrompt: () => string
-	setApiKey: (apiKey: string) => void
-	length: string
-	setLength: (length: string) => void
-	noteRange: string
-	setNoteRange: (noteRange: string) => void
-	authToken: string | null
-	setAuthToken: (authToken: string | null) => void
-	email: string
-	setEmail: (email: string) => void
-	error: string
-	setError: (error: string) => void
-	authMessage: string
-	setAuthMessage: (message: string) => void
-	fetchMemories: (userInput: string) => Promise<string>
-	openAIMemoriesNote: () => Promise<void>
-	therapyType: string
-	setTherapyType: (therapyType: string) => void
-	insightFilter: string
-	setInsightFilter: (insightFilter: string) => void
-	userInput: string
-	setUserInput: (userInput: string) => void
-	result: string
-	setResult: (result: string) => void
-	showModal: boolean
-	setShowModal: (showModal: boolean) => void
-	updateUserInput: () => void
-	handleFetchResult: () => Promise<void>
-	handleRefresh: () => Promise<void>
-	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	handleCloseModal: () => void
-	handlePlusClick: (advice: string) => Promise<void>
-	handleHeartClick: (advice: string) => Promise<void>
-	saveMemoriesToNote: (memories: string) => Promise<void>
-	getMemoriesContent: () => Promise<string>
-	toggleEmotionsBar: () => void
-	isEmotionsBarVisible: boolean
-	emotionsBarRef: React.RefObject<HTMLDivElement>
-	vibe: string
-	setVibe: (vibe: string) => void
-	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-}
+import {
+	updateUserInput as updateUserInputUI,
+	handlePlusClick as handlePlusClickUI,
+	handleHeartClick as handleHeartClickUI,
+} from './uiInteractions'
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
-interface AppProviderProps {
-	plugin: MyPlugin
-	children: ReactNode
-}
+
 export const AppProvider: React.FC<AppProviderProps> = ({
 	plugin,
 	children,
@@ -100,17 +56,34 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		plugin.saveSettings()
 	}, [length, plugin])
 
-	const fetchAndDisplayResult = async (
-		params: FetchAndDisplayResultParams,
+	const fetchTherapyResponse = async (
+		params: FetchTherapyResponseParams,
 	): Promise<string> => {
-		const response = await fetchAndDisplayResultAPI(
+		const response = await fetchTherapyResponseAPI(
 			plugin,
 			{ ...params, length },
-			getAIMemoriesContent,
+			() => getAIMemoriesContent(plugin),
 		)
 		setResult(response)
 		setShowModal(true)
 		return response
+	}
+
+	const generateTherapyResponse = async () => {
+		try {
+			updateUserInput()
+			const prompt = generatePrompt()
+			const result = await fetchTherapyResponse({
+				prompt,
+				userInput,
+				noteRange,
+				vibe,
+			})
+			setResult(result)
+			setShowModal(true)
+		} catch (error) {
+			console.error('Error generating therapy response:', error)
+		}
 	}
 
 	useEffect(() => {
@@ -123,29 +96,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		loadSettings()
 	}, [plugin])
 
-	const getAIMemoriesContent = async (): Promise<string> => {
-		const aiMemoriesPath = 'AI-memories.md'
-		const aiMemoriesFile =
-			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
-		if (aiMemoriesFile instanceof TFile) {
-			return await plugin.app.vault.read(aiMemoriesFile)
-		}
-		return ''
-	}
-
-	const fetchMemories = async (userInput: string): Promise<string> => {
-		return await fetchMemoriesAPI(plugin, userInput, getAIMemoriesContent)
-	}
-
-	const openAIMemoriesNote = async (): Promise<void> => {
-		const notePath = 'AI-memories.md'
-		const memoryFile = plugin.app.vault.getAbstractFileByPath(notePath)
-
-		if (memoryFile instanceof TFile) {
-			const leaf = plugin.app.workspace.getLeaf(true)
-			await leaf.openFile(memoryFile)
-		}
-	}
+	const closeEmotionsBar = useCallback(() => {
+		setIsEmotionsBarVisible(false)
+	}, [])
 
 	const handleVibeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setVibe(e.target.value)
@@ -153,48 +106,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
 	const generatePrompt = (): string => {
 		return `You are the world's top therapist, trained in ${therapyType}. Your only job is to ${insightFilter}. Your responses must always be ${length}. Your response must have the vibe of ${vibe}.`
-	}
-
-	const updateUserInput = () => {
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (view) {
-			setUserInput(view.editor.getValue())
-		} else {
-			setUserInput('')
-		}
-	}
-
-	const handleFetchResult = async () => {
-		try {
-			const prompt = generatePrompt()
-			const result = await fetchAndDisplayResult({
-				prompt,
-				userInput,
-				noteRange,
-				vibe,
-			})
-			setResult(result)
-			setShowModal(true)
-		} catch (error) {
-			console.error('Error fetching result:', error)
-		}
-	}
-
-	const handleRefresh = async () => {
-		try {
-			updateUserInput()
-			const prompt = generatePrompt()
-			const result = await fetchAndDisplayResult({
-				prompt,
-				userInput,
-				noteRange,
-				vibe,
-			})
-			setResult(result)
-			setShowModal(true)
-		} catch (error) {
-			console.error('Error refreshing result:', error)
-		}
 	}
 
 	const handleTherapyTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -210,75 +121,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const handleCloseModal = () => {
 		setShowModal(false)
 	}
+
+	const updateUserInput = () => {
+		setUserInput(updateUserInputUI(plugin))
+	}
+
 	const handlePlusClick = async (advice: string) => {
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!view) return
-
-		const editor = view.editor
-		const currentContent = editor.getValue()
-		const updatedContent = `${currentContent}\n\n### AI:\n- ${advice}\n### Me:\n- `
-		editor.setValue(updatedContent)
-
-		const lastLine = editor.lineCount() - 1
-		editor.setCursor({ line: lastLine, ch: 0 })
-		editor.scrollIntoView({
-			from: { line: lastLine, ch: 0 },
-			to: { line: lastLine, ch: 0 },
-		})
+		await handlePlusClickUI(plugin, advice)
 	}
 
 	const handleHeartClick = async (advice: string) => {
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!view) return
-
-		const currentNoteFile = view.file
-		const currentNoteDate = currentNoteFile?.basename
-
-		const feedbackFile =
-			plugin.app.vault.getAbstractFileByPath('ai-feedback.md')
-
-		if (feedbackFile instanceof TFile) {
-			const content = await plugin.app.vault.read(feedbackFile)
-			const updatedContent = `### ${currentNoteDate}\n${advice}\n\n${content}`
-			await plugin.app.vault.modify(feedbackFile, updatedContent)
-		} else {
-			const newContent = `### ${currentNoteDate}\n${advice}`
-			await plugin.app.vault.create('ai-feedback.md', newContent)
-		}
-	}
-	const saveMemoriesToNote = async (memories: string) => {
-		const notePath = 'AI-memories.md'
-		const memoryFile = plugin.app.vault.getAbstractFileByPath(notePath)
-
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!view) return
-		const currentNoteFile = view.file
-		const currentNoteDate = currentNoteFile?.basename
-		const memoriesWithDate = memories
-			.split('\n')
-			.map((memory) => `${memory} - ${currentNoteDate}`)
-			.join('\n')
-
-		if (memoryFile instanceof TFile) {
-			const content = await plugin.app.vault.read(memoryFile)
-			const updatedContent = `${memoriesWithDate}\n\n${content}`
-			await plugin.app.vault.modify(memoryFile, updatedContent)
-		} else {
-			await plugin.app.vault.create(notePath, memoriesWithDate)
-		}
-
-		await openAIMemoriesNote()
-	}
-
-	const getMemoriesContent = async (): Promise<string> => {
-		const aiMemoriesPath = 'AI-memories.md'
-		const aiMemoriesFile =
-			plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
-		if (aiMemoriesFile instanceof TFile) {
-			console.log('🚀 ~ getMemoriesContent ~ aiMemoriesFile:', aiMemoriesFile)
-			return await plugin.app.vault.read(aiMemoriesFile)
-		}
-		return ''
+		await handleHeartClickUI(plugin, advice)
 	}
 
 	const toggleEmotionsBar = useCallback(() => {
@@ -292,6 +145,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	useEffect(() => {
 		console.log('isEmotionsBarVisible updated:', isEmotionsBarVisible)
 	}, [isEmotionsBarVisible])
+
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
@@ -327,9 +181,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				setError,
 				authMessage,
 				setAuthMessage,
-				fetchAndDisplayResult,
-				fetchMemories,
-				openAIMemoriesNote,
 				therapyType,
 				setTherapyType,
 				insightFilter,
@@ -341,21 +192,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				showModal,
 				setShowModal,
 				updateUserInput,
-				handleFetchResult,
-				handleRefresh,
+				generateTherapyResponse,
+				fetchTherapyResponse,
 				handleTherapyTypeChange,
 				handleInsightFilterChange,
 				handleCloseModal,
 				handlePlusClick,
 				handleHeartClick,
-				saveMemoriesToNote,
-				getMemoriesContent,
 				isEmotionsBarVisible,
 				toggleEmotionsBar,
 				emotionsBarRef,
 				vibe,
 				setVibe,
 				handleVibeChange,
+				closeEmotionsBar,
+				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
+				openAIMemoriesNote: () => openAIMemoriesNote(plugin),
+				saveMemoriesToNote: (memories: string) =>
+					saveMemoriesToNote(plugin, memories),
+				getMemoriesContent: () => getMemoriesContent(plugin),
 			}}
 		>
 			{children}

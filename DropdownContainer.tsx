@@ -20,7 +20,7 @@ const DropdownContainer: React.FC = () => {
 		therapyType,
 		insightFilter,
 		updateUserInput,
-		handleRefresh,
+		generateTherapyResponse,
 		handleTherapyTypeChange,
 		handleInsightFilterChange,
 		saveMemoriesToNote,
@@ -45,7 +45,7 @@ const DropdownContainer: React.FC = () => {
 	}, [authToken, setAuthMessage])
 
 	const handleSaveMemories = async () => {
-		const memories = await getMemoriesContent() // Fetch actual memories content
+		const memories = await getMemoriesContent()
 		console.log('🚀 ~ handleSaveMemories ~ memories:', memories)
 		await saveMemoriesToNote(memories)
 	}
@@ -92,8 +92,10 @@ const DropdownContainer: React.FC = () => {
 						))}
 					</Select>
 				</InputItem>
-				<RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
-				<button onClick={handleSaveMemories}>Save Memories</button>
+				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
+				<UpdateMemoriesButton onClick={handleSaveMemories}>
+					Save Memories
+				</UpdateMemoriesButton>
 			</TherapyModal>
 			<ResponseModal />
 		</>
