@@ -20,12 +20,11 @@ const DropdownContainer: React.FC = () => {
 		therapyType,
 		insightFilter,
 		updateUserInput,
-		handleFetchResult,
 		handleRefresh,
 		handleTherapyTypeChange,
 		handleInsightFilterChange,
 		saveMemoriesToNote,
-		getMemoriesContent, // Add this line
+		getMemoriesContent,
 	} = useAppContext()
 
 	useEffect(() => {

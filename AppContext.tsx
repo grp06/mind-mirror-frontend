@@ -4,6 +4,8 @@ import React, {
 	useState,
 	ReactNode,
 	useEffect,
+	useRef,
+	useCallback,
 } from 'react'
 import MyPlugin from './main'
 import {
@@ -56,6 +58,9 @@ interface AppContextProps {
 	handleHeartClick: (advice: string) => Promise<void>
 	saveMemoriesToNote: (memories: string) => Promise<void>
 	getMemoriesContent: () => Promise<string>
+	toggleEmotionsBar: () => void
+	isEmotionsBarVisible: boolean
+	emotionsBarRef: React.RefObject<HTMLDivElement>
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
@@ -68,22 +73,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	children,
 }) => {
 	const [apiKey, setApiKey] = useState(plugin.settings.apiKey)
-
 	const [noteRange, setNoteRange] = useState(plugin.settings.noteRange)
 	const [authToken, setAuthToken] = useState<string | null>(
 		localStorage.getItem('authToken'),
 	)
 	const [email, setEmail] = useState('')
 	const [error, setError] = useState('')
-
 	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
 	const [showModal, setShowModal] = useState(false)
 	const [authMessage, setAuthMessage] = useState('')
-
 	const [length, setLength] = useState(plugin.settings.length)
+	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(false)
+	console.log('🚀 ~ isEmotionsBarVisible:', isEmotionsBarVisible)
+
+	const emotionsBarRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		plugin.settings.length = length
@@ -267,6 +273,33 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		return ''
 	}
 
+	const toggleEmotionsBar = useCallback(() => {
+		setIsEmotionsBarVisible((prev) => {
+			const newValue = !prev
+			console.log('Toggling emotions bar:', newValue)
+			return newValue
+		})
+	}, [])
+
+	useEffect(() => {
+		console.log('isEmotionsBarVisible updated:', isEmotionsBarVisible)
+	}, [isEmotionsBarVisible])
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				emotionsBarRef.current &&
+				!emotionsBarRef.current.contains(event.target as Node)
+			) {
+				setIsEmotionsBarVisible(false)
+			}
+		}
+
+		document.addEventListener('mousedown', handleClickOutside)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+		}
+	}, [])
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -309,6 +342,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				handleHeartClick,
 				saveMemoriesToNote,
 				getMemoriesContent,
+				isEmotionsBarVisible,
+				toggleEmotionsBar,
+				emotionsBarRef,
 			}}
 		>
 			{children}

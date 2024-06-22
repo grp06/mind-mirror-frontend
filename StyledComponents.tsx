@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 export const Wrapper = styled.div`
 	color: #f0f0f0;
@@ -126,6 +126,30 @@ export const ResponseModalContainer = styled.div`
 	color: #f0f0f0;
 	width: 300px;
 	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+`
+
+export const ResponseContent = styled.div`
+	flex-grow: 1;
+	overflow-y: auto;
+`
+
+export const ResponseActions = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid #555;
+`
+
+export const ActionButton = styled.button`
+	background-color: transparent;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	color: #fff;
 `
 export const Title = styled.h2`
 	margin-top: 0;
@@ -187,13 +211,13 @@ export const PlusButton = styled.button`
 	font-size: 24px;
 	cursor: pointer;
 	margin-left: 10px;
-	color: #000; /* Adjust color as needed */
+	color: #fff; /* Adjust color as needed */
 `
 
 export const HeartButton = styled.button`
 	background-color: transparent;
 	border: none;
-	color: red;
+	color: #ff5ac0;
 	font-size: 1.5em;
 	cursor: pointer;
 	margin: 0 5px;
@@ -201,4 +225,87 @@ export const HeartButton = styled.button`
 	&:hover {
 		color: darkred;
 	}
+`
+
+export const ButtonWrapper = styled.div<{
+	$backgroundColor: string
+	$isActive?: boolean
+}>`
+	display: inline-block;
+	background-color: ${(props) => props.$backgroundColor};
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 10px;
+	font-weight: bold;
+	padding: 6px 10px;
+	width: 12%;
+	margin: 5px;
+	opacity: ${(props) => (props.$isActive ? 1 : 0.7)};
+	text-align: center;
+`
+const slideIn = keyframes`
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+`
+
+const slideOut = keyframes`
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+`
+
+export const BarContainer = styled.div<{ $isVisible: boolean }>`
+	display: flex;
+	justify-content: space-around;
+	position: fixed;
+	top: 75px;
+	right: 0;
+	width: 80%;
+	z-index: 1000;
+	animation: ${(props) => (props.$isVisible ? slideIn : slideOut)} 0.3s
+		ease-in-out;
+	transform: ${(props) =>
+		props.$isVisible ? 'translateX(0)' : 'translateX(100%)'};
+`
+
+export const SecondaryPane = styled.div<{
+	$isVisible: boolean
+	$category: string
+}>`
+	display: ${(props) => (props.$isVisible ? 'flex' : 'none')};
+	flex-wrap: wrap;
+	background-color: #222;
+	padding: 20px;
+	position: fixed;
+	top: 114px;
+	right: 0;
+	width: 80%;
+	z-index: 999;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+`
+
+export const FloatingEmoji = styled.div<{ $isVisible: boolean }>`
+	position: fixed;
+	top: 75px;
+	right: 20px;
+	font-size: 24px;
+	cursor: pointer;
+	z-index: 1001;
+	display: ${(props) => (props.$isVisible ? 'block' : 'none')};
+`
+
+export const CloseEmotionsButton = styled.div`
+	cursor: pointer;
+	font-size: 20px;
+	margin-left: 10px;
+	align-self: center;
 `

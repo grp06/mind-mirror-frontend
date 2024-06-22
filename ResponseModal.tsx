@@ -1,32 +1,39 @@
 import React from 'react'
+import { useAppContext } from './AppContext'
+import EmotionsBar from './EmotionsBar'
 import {
 	ResponseModalContainer,
-	Title,
-	Content,
-	CloseButton,
-	PlusButton,
-	HeartButton,
+	ResponseContent,
+	ResponseActions,
+	ActionButton,
 } from './StyledComponents'
-import { useAppContext } from './AppContext'
 
 const ResponseModal: React.FC = () => {
 	const {
-		showModal,
 		result,
-		handleCloseModal,
 		handlePlusClick,
 		handleHeartClick,
+		toggleEmotionsBar,
+		isEmotionsBarVisible,
 	} = useAppContext()
 
-	if (!showModal) return null
+	const handleFeelingClick = (feeling: string) => {
+		console.log(`Selected feeling: ${feeling}`)
+	}
 
 	return (
 		<ResponseModalContainer>
-			<Title>AI Response</Title>
-			<Content>{result}</Content>
-			<PlusButton onClick={() => handlePlusClick(result)}>+</PlusButton>
-			<HeartButton onClick={() => handleHeartClick(result)}>❤️</HeartButton>
-			<CloseButton onClick={handleCloseModal}>X</CloseButton>
+			<ResponseContent>
+				{result ? result : 'Click refresh to get AI feedback'}
+			</ResponseContent>
+			<ResponseActions>
+				<ActionButton onClick={() => handlePlusClick(result)}>➕</ActionButton>
+				<ActionButton onClick={() => handleHeartClick(result)}>❤️</ActionButton>
+				<ActionButton onClick={toggleEmotionsBar}>🫀</ActionButton>
+			</ResponseActions>
+			{isEmotionsBarVisible && (
+				<EmotionsBar onFeelingClick={handleFeelingClick} />
+			)}
 		</ResponseModalContainer>
 	)
 }
