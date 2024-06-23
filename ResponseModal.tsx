@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useAppContext } from './AppContext'
 import EmotionsBar from './EmotionsBar'
 import {
@@ -15,10 +15,32 @@ const ResponseModal: React.FC = () => {
 		handleHeartClick,
 		toggleEmotionsBar,
 		isEmotionsBarVisible,
+		closeEmotionsBar,
 	} = useAppContext()
 
+	const modalRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				modalRef.current &&
+				!modalRef.current.contains(event.target as Node)
+			) {
+				closeEmotionsBar()
+			}
+		}
+
+		if (isEmotionsBarVisible) {
+			document.addEventListener('mousedown', handleClickOutside)
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+		}
+	}, [isEmotionsBarVisible, closeEmotionsBar])
+
 	return (
-		<ResponseModalContainer>
+		<ResponseModalContainer ref={modalRef}>
 			<ResponseContent>
 				{result ? result : 'Click refresh to get AI feedback'}
 			</ResponseContent>

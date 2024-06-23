@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { feelingCategories } from './data'
 import { useAppContext } from './AppContext'
 import {
@@ -15,6 +15,7 @@ interface EmotionsBarProps {
 const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 	const { closeEmotionsBar, handleFeelingClick } = useAppContext()
 	const [activeCategory, setActiveCategory] = useState<string | null>(null)
+	const barRef = useRef<HTMLDivElement>(null)
 
 	const getCategoryColor = (category: string, isLevel2 = false): string => {
 		const colors: { [key: string]: string } = {
@@ -45,7 +46,7 @@ const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 	}
 
 	return (
-		<div>
+		<div ref={barRef}>
 			<BarContainer>
 				<CloseEmotionsButton onClick={closeEmotionsBar}>➡️</CloseEmotionsButton>
 
