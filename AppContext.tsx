@@ -3,10 +3,8 @@ import React, {
 	useContext,
 	useState,
 	useEffect,
-	useRef,
 	useCallback,
 } from 'react'
-import { TFile, MarkdownView } from 'obsidian'
 import { fetchTherapyResponse as fetchTherapyResponseAPI } from './apiHandler'
 import {
 	fetchMemories,
@@ -137,15 +135,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		setIsEmotionsBarVisible(false)
 	}, [])
 
-	const handleFeelingClick = useCallback(
-		(feeling: string) => {
+	const handleEmotionClick = useCallback(
+		(emotion: string) => {
 			const now = new Date()
 			const formattedTime = now.toLocaleTimeString([], {
 				hour: 'numeric',
 				minute: '2-digit',
 			})
-			const formattedFeeling = `${feeling} - ${formattedTime}`
-			plugin.handleFeelingClick(formattedFeeling)
+			const formattedEmotion = `${emotion} - ${formattedTime}`
+			plugin.handleEmotionClick(formattedEmotion)
 		},
 		[plugin],
 	)
@@ -194,7 +192,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				isEmotionsBarVisible,
 				toggleEmotionsBar,
 				closeEmotionsBar,
-				handleFeelingClick,
+				handleEmotionClick,
 
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
 				openAIMemoriesNote: () => openAIMemoriesNote(plugin),

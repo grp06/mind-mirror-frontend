@@ -16,6 +16,7 @@ const ResponseModal: React.FC = () => {
 		toggleEmotionsBar,
 		isEmotionsBarVisible,
 		closeEmotionsBar,
+		handleEmotionClick,
 	} = useAppContext()
 
 	const modalRef = useRef<HTMLDivElement>(null)
@@ -49,7 +50,9 @@ const ResponseModal: React.FC = () => {
 				<ActionButton onClick={() => handleHeartClick(result)}>❤️</ActionButton>
 				<ActionButton onClick={toggleEmotionsBar}>🫀</ActionButton>
 			</ResponseActions>
-			{isEmotionsBarVisible && <EmotionsBar />}
+			{isEmotionsBarVisible && (
+				<EmotionsBar onEmotionClick={handleEmotionClick} />
+			)}
 		</ResponseModalContainer>
 	)
 }

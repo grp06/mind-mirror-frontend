@@ -6,7 +6,6 @@ import DropdownContainer from './DropdownContainer'
 import SettingsTab from './SettingsTab'
 import './styles.css'
 import { AppProvider } from './AppContext'
-import EmotionsBar from './EmotionsBar'
 
 export default class MyPlugin extends Plugin {
 	root: Root | null = null
@@ -18,24 +17,24 @@ export default class MyPlugin extends Plugin {
 
 	authMessage = ''
 
-	async handleFeelingClick(feeling: string) {
+	async handleEmotionClick(emotion: string) {
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
 		if (!view) return
 
 		const editor = view.editor
 		const currentContent = editor.getValue()
-		const formattedFeeling = `- ${feeling}`
+		const formattedEmotion = `- ${emotion}`
 
 		let updatedContent
-		if (currentContent.startsWith('# Daily Feelings')) {
+		if (currentContent.startsWith('# Daily Emotions')) {
 			const lines = currentContent.split('\n')
 			const index = lines.findIndex((line) =>
-				line.startsWith('# Daily Feelings'),
+				line.startsWith('# Daily Emotions'),
 			)
-			lines.splice(index + 1, 0, formattedFeeling)
+			lines.splice(index + 1, 0, formattedEmotion)
 			updatedContent = lines.join('\n')
 		} else {
-			updatedContent = `# Daily Feelings\n${formattedFeeling}\n\n${currentContent}`
+			updatedContent = `# Daily Emotions\n${formattedEmotion}\n\n${currentContent}`
 		}
 
 		editor.setValue(updatedContent)

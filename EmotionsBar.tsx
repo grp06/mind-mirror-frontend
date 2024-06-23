@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { feelingCategories } from './data'
+import React, { useState, useRef } from 'react'
+import { emotionCategories } from './data'
 import { useAppContext } from './AppContext'
 import {
 	BarContainer,
@@ -9,11 +9,11 @@ import {
 } from './StyledComponents'
 
 interface EmotionsBarProps {
-	onFeelingClick: (feeling: string) => void
+	onEmotionClick: (emotion: string) => void
 }
 
-const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
-	const { closeEmotionsBar, handleFeelingClick } = useAppContext()
+const EmotionsBar: React.FC<EmotionsBarProps> = ({ onEmotionClick }) => {
+	const { closeEmotionsBar, handleEmotionClick } = useAppContext()
 	const [activeCategory, setActiveCategory] = useState<string | null>(null)
 	const barRef = useRef<HTMLDivElement>(null)
 
@@ -50,7 +50,7 @@ const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 			<BarContainer>
 				<CloseEmotionsButton onClick={closeEmotionsBar}>➡️</CloseEmotionsButton>
 
-				{feelingCategories.map((category) => (
+				{emotionCategories.map((category) => (
 					<ButtonWrapper
 						key={category.level0}
 						$backgroundColor={getCategoryColor(category.level0)}
@@ -61,28 +61,28 @@ const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 					</ButtonWrapper>
 				))}
 			</BarContainer>
-			{feelingCategories.map((category) => (
+			{emotionCategories.map((category) => (
 				<SecondaryPane
 					key={category.level0}
 					$isVisible={activeCategory === category.level0}
 					$category={category.level0}
 				>
-					{category.level1.map((feeling) => (
+					{category.level1.map((emotion) => (
 						<ButtonWrapper
-							key={feeling}
+							key={emotion}
 							$backgroundColor={getCategoryColor(category.level0)}
-							onClick={() => handleFeelingClick(feeling)}
+							onClick={() => handleEmotionClick(emotion)}
 						>
-							{feeling}
+							{emotion}
 						</ButtonWrapper>
 					))}
-					{category.level2.map((feeling) => (
+					{category.level2.map((emotion) => (
 						<ButtonWrapper
-							key={feeling}
+							key={emotion}
 							$backgroundColor={getCategoryColor(category.level0, true)}
-							onClick={() => handleFeelingClick(feeling)}
+							onClick={() => handleEmotionClick(emotion)}
 						>
-							{feeling}
+							{emotion}
 						</ButtonWrapper>
 					))}
 				</SecondaryPane>

@@ -39,13 +39,13 @@ export const vibeOptions = [
 	'Critical',
 	'A real asshole',
 ]
-export interface FeelingCategory {
+export interface EmotionCategory {
 	level0: string
 	level1: string[]
 	level2: string[]
 }
 
-export const feelingCategories: FeelingCategory[] = [
+export const emotionCategories: EmotionCategory[] = [
 	{
 		level0: 'Happy',
 		level1: [

@@ -53,7 +53,7 @@ export interface AppContextProps {
 	isEmotionsBarVisible: boolean
 	toggleEmotionsBar: () => void
 	closeEmotionsBar: () => void
-	handleFeelingClick: (feeling: string) => void
+	handleEmotionClick: (emotion: string) => void
 }
 
 export interface AppProviderProps {
