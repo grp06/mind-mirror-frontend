@@ -245,36 +245,16 @@ export const ButtonWrapper = styled.div<{
 	opacity: ${(props) => (props.$isActive ? 1 : 0.7)};
 	text-align: center;
 `
-const slideIn = keyframes`
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-`
 
-const slideOut = keyframes`
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-`
-
-export const BarContainer = styled.div<{ $isVisible: boolean }>`
+export const BarContainer = styled.div`
 	display: flex;
 	justify-content: space-around;
 	position: fixed;
 	top: 75px;
-	right: 0;
-	width: 80%;
+	background-color: #222;
+	right: 314px;
+	width: calc(80% - 320px);
 	z-index: 1000;
-	animation: ${(props) => (props.$isVisible ? slideIn : slideOut)} 0.3s
-		ease-in-out;
-	transform: ${(props) =>
-		props.$isVisible ? 'translateX(0)' : 'translateX(100%)'};
 `
 
 export const SecondaryPane = styled.div<{
@@ -287,8 +267,8 @@ export const SecondaryPane = styled.div<{
 	padding: 20px;
 	position: fixed;
 	top: 114px;
-	right: 0;
-	width: 80%;
+	right: 314px;
+	width: calc(80% - 320px);
 	z-index: 999;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 `

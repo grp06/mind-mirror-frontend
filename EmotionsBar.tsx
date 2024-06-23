@@ -13,18 +13,9 @@ interface EmotionsBarProps {
 }
 
 const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
+	const { closeEmotionsBar, handleFeelingClick } = useAppContext()
 	const [activeCategory, setActiveCategory] = useState<string | null>(null)
-	const [isClosing, setIsClosing] = useState(false)
-	const { emotionsBarRef, toggleEmotionsBar, isEmotionsBarVisible } =
-		useAppContext()
 
-	const handleClose = () => {
-		setIsClosing(true)
-		setTimeout(() => {
-			toggleEmotionsBar()
-			setIsClosing(false)
-		}, 300)
-	}
 	const getCategoryColor = (category: string, isLevel2 = false): string => {
 		const colors: { [key: string]: string } = {
 			Happy: '#b48484',
@@ -39,7 +30,6 @@ const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 		let color = colors[category] || '#FFFFFF'
 
 		if (isLevel2) {
-			// Convert hex to RGB, darken, then convert back to hex
 			const rgb = parseInt(color.slice(1), 16)
 			const r = Math.floor(((rgb >> 16) & 255) * 0.7)
 			const g = Math.floor(((rgb >> 8) & 255) * 0.7)
@@ -54,22 +44,10 @@ const EmotionsBar: React.FC<EmotionsBarProps> = ({ onFeelingClick }) => {
 		setActiveCategory(activeCategory === category ? null : category)
 	}
 
-	const handleFeelingClick = useCallback(
-		(feeling: string) => {
-			const now = new Date()
-			const formattedTime = now.toLocaleTimeString([], {
-				hour: 'numeric',
-				minute: '2-digit',
-			})
-			onFeelingClick(`${feeling} - ${formattedTime}`)
-			setActiveCategory(null)
-		},
-		[onFeelingClick],
-	)
 	return (
-		<div ref={emotionsBarRef}>
-			<BarContainer $isVisible={isEmotionsBarVisible && !isClosing}>
-				<CloseEmotionsButton onClick={handleClose}>➡️</CloseEmotionsButton>
+		<div>
+			<BarContainer>
+				<CloseEmotionsButton onClick={closeEmotionsBar}>➡️</CloseEmotionsButton>
 
 				{feelingCategories.map((category) => (
 					<ButtonWrapper

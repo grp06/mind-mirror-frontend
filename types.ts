@@ -47,13 +47,13 @@ export interface AppContextProps {
 	handleHeartClick: (advice: string) => Promise<void>
 	saveMemoriesToNote: (memories: string) => Promise<void>
 	getMemoriesContent: () => Promise<string>
-	toggleEmotionsBar: () => void
-	isEmotionsBarVisible: boolean
-	emotionsBarRef: React.RefObject<HTMLDivElement>
 	vibe: string
 	setVibe: (vibe: string) => void
 	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	isEmotionsBarVisible: boolean
+	toggleEmotionsBar: () => void
 	closeEmotionsBar: () => void
+	handleFeelingClick: (feeling: string) => void
 }
 
 export interface AppProviderProps {

@@ -17,10 +17,6 @@ const ResponseModal: React.FC = () => {
 		isEmotionsBarVisible,
 	} = useAppContext()
 
-	const handleFeelingClick = (feeling: string) => {
-		console.log(`Selected feeling: ${feeling}`)
-	}
-
 	return (
 		<ResponseModalContainer>
 			<ResponseContent>
@@ -31,9 +27,7 @@ const ResponseModal: React.FC = () => {
 				<ActionButton onClick={() => handleHeartClick(result)}>❤️</ActionButton>
 				<ActionButton onClick={toggleEmotionsBar}>🫀</ActionButton>
 			</ResponseActions>
-			{isEmotionsBarVisible && (
-				<EmotionsBar onFeelingClick={handleFeelingClick} />
-			)}
+			{isEmotionsBarVisible && <EmotionsBar />}
 		</ResponseModalContainer>
 	)
 }

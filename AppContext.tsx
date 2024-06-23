@@ -47,10 +47,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [showModal, setShowModal] = useState(false)
 	const [authMessage, setAuthMessage] = useState('')
 	const [length, setLength] = useState(plugin.settings.length)
-	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(false)
+	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(true)
 	const [vibe, setVibe] = useState('Neutral')
-
-	const emotionsBarRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		plugin.settings.length = length
@@ -97,10 +95,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		loadSettings()
 	}, [plugin])
 
-	const closeEmotionsBar = useCallback(() => {
-		setIsEmotionsBarVisible(false)
-	}, [])
-
 	const handleVibeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setVibe(e.target.value)
 	}
@@ -136,52 +130,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	}
 
 	const toggleEmotionsBar = useCallback(() => {
-		setIsEmotionsBarVisible((prev) => {
-			const newValue = !prev
-			console.log('Toggling emotions bar:', newValue)
-			return newValue
-		})
+		setIsEmotionsBarVisible((prev) => !prev)
 	}, [])
 
-	useEffect(() => {
-		console.log('isEmotionsBarVisible updated:', isEmotionsBarVisible)
-	}, [isEmotionsBarVisible])
-
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				emotionsBarRef.current &&
-				!emotionsBarRef.current.contains(event.target as Node)
-			) {
-				setIsEmotionsBarVisible(false)
-			}
-		}
-
-		document.addEventListener('mousedown', handleClickOutside)
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside)
-		}
+	const closeEmotionsBar = useCallback(() => {
+		setIsEmotionsBarVisible(false)
 	}, [])
 
-	const styleExcludedText = useCallback(() => {
-		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!view) return
-
-		const editor = view.editor
-		const content = editor.getValue()
-		const styledContent = content.replace(
-			/<excluded>(.*?)<\/excluded>/g,
-			(match, p1) =>
-				`<span style="background-color: rgba(255, 255, 0, 0.3);">${p1}</span>`,
-		)
-
-		editor.setValue(styledContent)
-	}, [plugin])
-
-	useEffect(() => {
-		const interval = setInterval(styleExcludedText, 1000) // Check every second
-		return () => clearInterval(interval)
-	}, [styleExcludedText])
+	const handleFeelingClick = useCallback(
+		(feeling: string) => {
+			const now = new Date()
+			const formattedTime = now.toLocaleTimeString([], {
+				hour: 'numeric',
+				minute: '2-digit',
+			})
+			const formattedFeeling = `${feeling} - ${formattedTime}`
+			plugin.handleFeelingClick(formattedFeeling)
+		},
+		[plugin],
+	)
 
 	return (
 		<AppContext.Provider
@@ -220,14 +187,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				handleCloseModal,
 				handlePlusClick,
 				handleHeartClick,
-				isEmotionsBarVisible,
-				toggleEmotionsBar,
-				emotionsBarRef,
+
 				vibe,
 				setVibe,
 				handleVibeChange,
+				isEmotionsBarVisible,
+				toggleEmotionsBar,
 				closeEmotionsBar,
-				styleExcludedText,
+				handleFeelingClick,
 
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
 				openAIMemoriesNote: () => openAIMemoriesNote(plugin),
