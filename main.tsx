@@ -55,7 +55,6 @@ export default class MyPlugin extends Plugin {
 					<ReactView />
 					<DropdownContainer />
 					<EmotionsBar onFeelingClick={this.handleFeelingClick.bind(this)} />
-					
 				</>
 			</AppProvider>,
 		)

@@ -6,6 +6,7 @@ import React, {
 	useRef,
 	useCallback,
 } from 'react'
+import { TFile, MarkdownView } from 'obsidian'
 import { fetchTherapyResponse as fetchTherapyResponseAPI } from './apiHandler'
 import {
 	fetchMemories,
@@ -162,6 +163,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		}
 	}, [])
 
+	const styleExcludedText = useCallback(() => {
+		const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!view) return
+
+		const editor = view.editor
+		const content = editor.getValue()
+		const styledContent = content.replace(
+			/<excluded>(.*?)<\/excluded>/g,
+			(match, p1) =>
+				`<span style="background-color: rgba(255, 255, 0, 0.3);">${p1}</span>`,
+		)
+
+		editor.setValue(styledContent)
+	}, [plugin])
+
+	useEffect(() => {
+		const interval = setInterval(styleExcludedText, 1000) // Check every second
+		return () => clearInterval(interval)
+	}, [styleExcludedText])
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -206,6 +227,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				setVibe,
 				handleVibeChange,
 				closeEmotionsBar,
+				styleExcludedText,
+
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
 				openAIMemoriesNote: () => openAIMemoriesNote(plugin),
 				saveMemoriesToNote: (memories: string) =>
