@@ -43,18 +43,19 @@ export const saveMemoriesToNote = async (plugin: MyPlugin): Promise<void> => {
 	if (memoryFile instanceof TFile && currentNoteFile instanceof TFile) {
 		const memoriesContent = await plugin.app.vault.read(memoryFile)
 		const currentNoteContent = await plugin.app.vault.read(currentNoteFile)
-		const today = new Date().toISOString().split('T')[0]
+		const dateMatch = currentNoteFile.name.match(/(\d{4}-\d{2}-\d{2})/)
+		const noteDate = dateMatch ? dateMatch[1] : ''
+		console.log('🚀 ~ saveMemoriesToNote ~ noteDate:', noteDate)
 
 		const updatedMemories = await fetchMemoriesAPI(
 			plugin,
 			currentNoteContent,
-			today,
+			noteDate,
 			() => Promise.resolve(memoriesContent),
 		)
 
 		const updatedContent = `${updatedMemories}\n\n${memoriesContent}`
 
-		console.log('🚀 ~ saveMemoriesToNote ~ updatedContent:', updatedContent)
 		await plugin.app.vault.modify(memoryFile, updatedContent)
 		await openAIMemoriesNote(plugin)
 	} else {

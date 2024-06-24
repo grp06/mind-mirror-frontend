@@ -67,7 +67,7 @@ export async function fetchTherapyResponse(
 export async function fetchMemories(
 	plugin: any,
 	userInput: string,
-	todaysDate: string,
+	memoryNotesDate: string,
 	getAIMemoriesContent: () => Promise<string>,
 ): Promise<string> {
 	try {
@@ -88,7 +88,7 @@ export async function fetchMemories(
 				body: JSON.stringify({
 					current_note_content: userInput,
 					memories_content: memoriesContent,
-					todays_date: todaysDate,
+					memory_notes_date: memoryNotesDate,
 					...(userApiKey && { user_api_key: userApiKey }),
 				}),
 			},
