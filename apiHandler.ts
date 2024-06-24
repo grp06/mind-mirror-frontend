@@ -67,44 +67,40 @@ export async function fetchTherapyResponse(
 export async function fetchMemories(
 	plugin: any,
 	userInput: string,
+	todaysDate: string,
 	getAIMemoriesContent: () => Promise<string>,
 ): Promise<string> {
 	try {
 		const memoriesContent = await getAIMemoriesContent()
-
 		const authToken = localStorage.getItem('authToken')
 		const userApiKey = plugin.settings.apiKey
 
-		const endpoint = userApiKey ? 'openai_with_user_api_key' : 'openai'
-		console.log('🚀 ~ endpoint:', endpoint)
 		const headers = {
 			'Content-Type': 'application/json',
-			...(userApiKey
-				? { Authorization: `Bearer ${userApiKey}` }
-				: { Authorization: `Bearer ${authToken}` }),
+			...(userApiKey ? {} : { Authorization: `Bearer ${authToken}` }),
 		}
 
-		const response = await fetch(`http://127.0.0.1:8000/backend/${endpoint}/`, {
-			method: 'POST',
-			headers: headers,
-			body: JSON.stringify({
-				prompt: 'Retrieve relevant memories',
-				notes_content: userInput,
-				memories_content: memoriesContent,
-				length: 'short',
-				vibe: 'neutral',
-				...(userApiKey && { user_api_key: userApiKey }),
-			}),
-		})
+		const response = await fetch(
+			`http://127.0.0.1:8000/backend/update_memories/`,
+			{
+				method: 'POST',
+				headers: headers,
+				body: JSON.stringify({
+					current_note_content: userInput,
+					memories_content: memoriesContent,
+					todays_date: todaysDate,
+					...(userApiKey && { user_api_key: userApiKey }),
+				}),
+			},
+		)
 
 		const data = await response.json()
-		console.log('🚀 ~ data:', data)
 
 		if (!response.ok) {
 			throw new Error(data.error || 'Unknown error')
 		}
 
-		return data.choices[0].message.content
+		return data.updated_memory
 	} catch (error) {
 		console.log('🚀 ~ fetchMemories ~ error:', error)
 		throw error

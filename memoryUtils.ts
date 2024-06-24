@@ -33,38 +33,39 @@ export const openAIMemoriesNote = async (plugin: MyPlugin): Promise<void> => {
 	}
 }
 
-export const saveMemoriesToNote = async (
-	plugin: MyPlugin,
-	memories: string,
-): Promise<void> => {
+export const saveMemoriesToNote = async (plugin: MyPlugin): Promise<void> => {
 	const notePath = 'AI-memories.md'
 	const memoryFile = plugin.app.vault.getAbstractFileByPath(notePath)
-
 	const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
 	if (!view) return
 	const currentNoteFile = view.file
-	const currentNoteDate = currentNoteFile?.basename
-	const memoriesWithDate = memories
-		.split('\n')
-		.map((memory) => `${memory} - ${currentNoteDate}`)
-		.join('\n')
 
-	if (memoryFile instanceof TFile) {
-		const content = await plugin.app.vault.read(memoryFile)
-		const updatedContent = `${memoriesWithDate}\n\n${content}`
+	if (memoryFile instanceof TFile && currentNoteFile instanceof TFile) {
+		const memoriesContent = await plugin.app.vault.read(memoryFile)
+		const currentNoteContent = await plugin.app.vault.read(currentNoteFile)
+		const today = new Date().toISOString().split('T')[0]
+
+		const updatedMemories = await fetchMemoriesAPI(
+			plugin,
+			currentNoteContent,
+			today,
+			() => Promise.resolve(memoriesContent),
+		)
+
+		const updatedContent = `${updatedMemories}\n\n${memoriesContent}`
+
+		console.log('🚀 ~ saveMemoriesToNote ~ updatedContent:', updatedContent)
 		await plugin.app.vault.modify(memoryFile, updatedContent)
+		await openAIMemoriesNote(plugin)
 	} else {
-		await plugin.app.vault.create(notePath, memoriesWithDate)
+		console.log('Error: Unable to access memory file or current note file')
 	}
-
-	await openAIMemoriesNote(plugin)
 }
 
 export const getMemoriesContent = async (plugin: MyPlugin): Promise<string> => {
 	const aiMemoriesPath = 'AI-memories.md'
 	const aiMemoriesFile = plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
 	if (aiMemoriesFile instanceof TFile) {
-		console.log('🚀 ~ getMemoriesContent ~ aiMemoriesFile:', aiMemoriesFile)
 		return await plugin.app.vault.read(aiMemoriesFile)
 	}
 	return ''
