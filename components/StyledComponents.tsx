@@ -280,11 +280,11 @@ export const SecondaryPane = styled.div<{
 	display: ${(props) => (props.$isVisible ? 'flex' : 'none')};
 	flex-wrap: wrap;
 	background-color: #222;
-	padding: 20px;
+	padding: 3px 10px;
 	position: fixed;
-	bottom: 36px;
-	right: 325px;
-	width: calc(80% - 325px);
+	bottom: 35px;
+	right: 317px;
+	width: calc(80% - 317px);
 	z-index: 999;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	border-radius: 8px;
