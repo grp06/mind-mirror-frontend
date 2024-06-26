@@ -1,7 +1,7 @@
 import { TFile, MarkdownView } from 'obsidian'
 
-import MyPlugin from './main'
-import { fetchMemories as fetchMemoriesAPI } from './apiHandler'
+import MyPlugin from '../main'
+import { fetchMemoriesFromAPI } from './fetchMemories'
 
 export const getAIMemoriesContent = async (
 	plugin: MyPlugin,
@@ -15,12 +15,12 @@ export const getAIMemoriesContent = async (
 }
 
 export const fetchMemories = async (
-	plugin: MyPlugin,
-	userInput: string,
+  plugin: MyPlugin,
+  userInput: string,
 ): Promise<string> => {
-	return await fetchMemoriesAPI(plugin, userInput, () =>
-		getAIMemoriesContent(plugin),
-	)
+  return await fetchMemoriesFromAPI(plugin, userInput, '', () =>
+    getAIMemoriesContent(plugin),
+  )
 }
 
 export const openAIMemoriesNote = async (plugin: MyPlugin): Promise<void> => {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useAppContext } from './AppContext'
+import { useAppContext } from '../context/AppContext'
 import {
 	InputItem,
 	Label,
@@ -9,7 +9,7 @@ import {
 	RefreshButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
-import { therapyTypes, insightFilters, vibeOptions } from './data'
+import { therapyTypes, insightFilters, vibeOptions } from '../data'
 
 const DropdownContainer: React.FC = () => {
 	const {

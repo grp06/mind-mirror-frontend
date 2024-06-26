@@ -5,25 +5,25 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react'
-import { fetchTherapyResponse as fetchTherapyResponseAPI } from './apiHandler'
+import { fetchTherapyResponse as fetchTherapyResponseAPI } from '../utils/fetchTherapyResponse'
 import {
 	fetchMemories,
 	openAIMemoriesNote,
 	saveMemoriesToNote,
 	getMemoriesContent,
 	getAIMemoriesContent,
-} from './memoryUtils'
+} from '../utils/memoryUtils'
 import {
 	AppContextProps,
 	AppProviderProps,
 	FetchTherapyResponseParams,
-} from './types'
+} from '../types'
 
 import {
 	updateUserInput as updateUserInputUI,
 	handlePlusClick as handlePlusClickUI,
 	handleHeartClick as handleHeartClickUI,
-} from './uiInteractions'
+} from '../utils/uiInteractions'
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
 
@@ -185,7 +185,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				handleCloseModal,
 				handlePlusClick,
 				handleHeartClick,
-
 				vibe,
 				setVibe,
 				handleVibeChange,

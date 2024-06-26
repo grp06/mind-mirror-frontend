@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
-import { emotionCategories } from './data'
-import { useAppContext } from './AppContext'
+import { emotionCategories } from '../data'
+import { useAppContext } from '../context/AppContext'
 import {
 	BarContainer,
 	ButtonWrapper,

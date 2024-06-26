@@ -289,17 +289,3 @@ export const CloseEmotionsButton = styled.div`
 	margin-left: 10px;
 	align-self: center;
 `
-export const ExcludeDiv = styled.div`
-	position: absolute;
-	background-color: yellow;
-	padding: 5px;
-	border-radius: 3px;
-	cursor: pointer;
-	z-index: 1000;
-	font-size: 12px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-	&:hover {
-		background-color: #ffff80;
-	}
-`

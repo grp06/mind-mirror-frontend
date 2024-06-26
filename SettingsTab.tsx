@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { App, PluginSettingTab, Notice } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
-import { useAppContext, AppProvider } from './AppContext' // Ensure AppProvider is imported
-import EmailModal from './EmailModal'
+import { useAppContext, AppProvider } from './context/AppContext' // Ensure AppProvider is imported
+import EmailModal from './components/EmailModal'
 import {
 	Wrapper,
 	InputItem,
@@ -13,7 +13,7 @@ import {
 	Button,
 	SaveButton,
 	EmailDisplay,
-} from './StyledComponents'
+} from './components/StyledComponents'
 
 const SettingsTabContent: React.FC = () => {
 	const {

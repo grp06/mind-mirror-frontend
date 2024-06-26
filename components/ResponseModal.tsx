@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { useAppContext } from './AppContext'
+import { useAppContext } from '../context/AppContext'
 import EmotionsBar from './EmotionsBar'
 import {
 	ResponseModalContainer,

@@ -1,11 +1,9 @@
 import { Plugin, MarkdownView } from 'obsidian'
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
-import { ReactView } from './ReactView'
-import DropdownContainer from './DropdownContainer'
+import DropdownContainer from './components/DropdownContainer'
 import SettingsTab from './SettingsTab'
-import './styles.css'
-import { AppProvider } from './AppContext'
+import { AppProvider } from './context/AppContext'
 
 export default class MyPlugin extends Plugin {
 	root: Root | null = null
@@ -50,10 +48,7 @@ export default class MyPlugin extends Plugin {
 		this.root = createRoot(reactContainer)
 		this.root.render(
 			<AppProvider plugin={this}>
-				<>
-					<ReactView />
-					<DropdownContainer />
-				</>
+				<DropdownContainer />
 			</AppProvider>,
 		)
 	}
