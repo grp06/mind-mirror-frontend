@@ -8,7 +8,6 @@ import {
 	InputItem,
 	Label,
 	Input,
-	Select,
 	ButtonContainer,
 	Button,
 	SaveButton,
@@ -27,9 +26,39 @@ const SettingsTabContent: React.FC = () => {
 		setError,
 		plugin,
 	} = useAppContext()
+
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [password, setPassword] = useState('')
-	const [repeatPassword, setRepeatPassword] = useState('')
+
+	useEffect(() => {
+		const fetchUserEmail = async () => {
+			if (authToken) {
+				try {
+					const response = await fetch(
+						'http://127.0.0.1:8000/backend/user_info/',
+						{
+							headers: {
+								Authorization: `Bearer ${authToken}`,
+							},
+						},
+					)
+					if (response.ok) {
+						const data = await response.json()
+						setEmail(data.email)
+					} else {
+						console.error('Failed to fetch user email')
+						setAuthToken(null)
+						setEmail('')
+					}
+				} catch (error) {
+					console.error('Error fetching user email:', error)
+					setAuthToken(null)
+					setEmail('')
+				}
+			}
+		}
+
+		fetchUserEmail()
+	}, [authToken, setAuthToken, setEmail])
 
 	const handleSaveButtonClick = async () => {
 		await plugin.saveSettings()
@@ -70,6 +99,7 @@ const SettingsTabContent: React.FC = () => {
 				const data = await response.json()
 				localStorage.setItem('authToken', data.token)
 				setAuthToken(data.token)
+				setEmail(email)
 				new Notice('Authenticated successfully')
 				handleCloseModal()
 				return true
@@ -111,8 +141,6 @@ const SettingsTabContent: React.FC = () => {
 				onSubmit={handleAuthSubmit}
 				resetFormFields={() => {
 					setEmail('')
-					setPassword('')
-					setRepeatPassword('')
 					setError('')
 				}}
 			/>

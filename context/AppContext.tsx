@@ -36,14 +36,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [authToken, setAuthToken] = useState<string | null>(
 		localStorage.getItem('authToken'),
 	)
+	console.log('🚀 ~ authToken:', authToken)
 	const [email, setEmail] = useState('')
+	console.log('🚀 ~ email:', email)
 	const [error, setError] = useState('')
 	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
 	const [modalState, setModalState] = useState<ModalState>(ModalState.Initial)
-
 	const [authMessage, setAuthMessage] = useState('')
 	const [length, setLength] = useState(plugin.settings.length)
 	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(true)
