@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { App, PluginSettingTab, Notice } from 'obsidian'
 import { createRoot, Root } from 'react-dom/client'
-import { useAppContext, AppProvider } from './context/AppContext' // Ensure AppProvider is imported
-import EmailModal from './components/EmailModal'
+import { useAppContext, AppProvider } from '../context/AppContext' // Ensure AppProvider is imported
+import EmailModal from './EmailModal'
 import {
 	Wrapper,
 	InputItem,
@@ -13,16 +13,12 @@ import {
 	Button,
 	SaveButton,
 	EmailDisplay,
-} from './components/StyledComponents'
+} from './StyledComponents'
 
 const SettingsTabContent: React.FC = () => {
 	const {
 		apiKey,
 		setApiKey,
-		length,
-		setLength,
-		noteRange,
-		setNoteRange,
 		authToken,
 		setAuthToken,
 		email,
@@ -32,8 +28,8 @@ const SettingsTabContent: React.FC = () => {
 		plugin,
 	} = useAppContext()
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [password, setPassword] = useState('') // Added state for password
-	const [repeatPassword, setRepeatPassword] = useState('') // Added state for repeatPassword
+	const [password, setPassword] = useState('')
+	const [repeatPassword, setRepeatPassword] = useState('')
 
 	const handleSaveButtonClick = async () => {
 		await plugin.saveSettings()
@@ -90,12 +86,7 @@ const SettingsTabContent: React.FC = () => {
 			return false
 		}
 	}
-	const handleLengthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newLength = e.target.value
-		setLength(newLength)
-		plugin.settings.length = newLength
-		plugin.saveSettings()
-	}
+
 	return (
 		<Wrapper>
 			<h2>Mind Mirror Settings</h2>
@@ -107,28 +98,6 @@ const SettingsTabContent: React.FC = () => {
 					onChange={(e) => setApiKey(e.target.value)}
 					placeholder="Enter your API key"
 				/>
-			</InputItem>
-			<InputItem>
-				<Label>Length</Label>
-				<Select value={length} onChange={handleLengthChange}>
-					<option value="one sentence">One Sentence</option>
-					<option value="three sentences">Three Sentences</option>
-					<option value="one paragraph">One Paragraph</option>
-				</Select>
-			</InputItem>
-			<InputItem>
-				<Label>Note Range</Label>
-				<Select
-					value={noteRange}
-					onChange={(e) => setNoteRange(e.target.value)}
-				>
-					<option value="current">Just this note</option>
-					<option value="last2">Last 2 notes</option>
-					<option value="last3">Last 3 notes</option>
-					<option value="last5">Last 5 notes</option>
-					<option value="last10">Last 10 notes</option>
-					<option value="last20">Last 20 notes</option>
-				</Select>
 			</InputItem>
 			<ButtonContainer>
 				<Button onClick={handleAuthButtonClick}>
@@ -142,8 +111,8 @@ const SettingsTabContent: React.FC = () => {
 				onSubmit={handleAuthSubmit}
 				resetFormFields={() => {
 					setEmail('')
-					setPassword('') // Reset password
-					setRepeatPassword('') // Reset repeatPassword
+					setPassword('')
+					setRepeatPassword('')
 					setError('')
 				}}
 			/>

@@ -8,6 +8,11 @@ export interface FetchTherapyResponseParams {
 	vibe: string
 }
 
+export enum ModalState {
+	Initial,
+	Show,
+	Hide,
+}
 export interface AppContextProps {
 	plugin: MyPlugin
 	apiKey: string
@@ -36,17 +41,13 @@ export interface AppContextProps {
 	setUserInput: (userInput: string) => void
 	result: string
 	setResult: (result: string) => void
-	showModal: boolean
-	setShowModal: (showModal: boolean) => void
 	updateUserInput: () => void
 	generateTherapyResponse: () => Promise<void>
 	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	handleCloseModal: () => void
 	handlePlusClick: (advice: string) => Promise<void>
 	handleHeartClick: (advice: string) => Promise<void>
 	saveMemoriesToNote: (memories: string) => Promise<void>
-	getMemoriesContent: () => Promise<string>
 	vibe: string
 	setVibe: (vibe: string) => void
 	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
@@ -54,6 +55,8 @@ export interface AppContextProps {
 	toggleEmotionsBar: () => void
 	closeEmotionsBar: () => void
 	handleEmotionClick: (emotion: string) => void
+	modalState: ModalState
+	setModalState: React.Dispatch<React.SetStateAction<ModalState>>
 }
 
 export interface AppProviderProps {

@@ -6,17 +6,20 @@ import {
 	ResponseContent,
 	ResponseActions,
 	ActionButton,
+	CloseButton,
 } from './StyledComponents'
+import { ModalState } from '../types' // Add this import
 
 const ResponseModal: React.FC = () => {
 	const {
 		result,
 		handlePlusClick,
 		handleHeartClick,
-		toggleEmotionsBar,
 		isEmotionsBarVisible,
 		closeEmotionsBar,
 		handleEmotionClick,
+		handleCloseModal,
+		modalState,
 	} = useAppContext()
 
 	const modalRef = useRef<HTMLDivElement>(null)
@@ -39,16 +42,19 @@ const ResponseModal: React.FC = () => {
 			document.removeEventListener('mousedown', handleClickOutside)
 		}
 	}, [isEmotionsBarVisible, closeEmotionsBar])
+	if (modalState === ModalState.Hide) return null
 
 	return (
 		<ResponseModalContainer ref={modalRef}>
+			<CloseButton onClick={handleCloseModal}>×</CloseButton>
 			<ResponseContent>
-				{result ? result : 'Click refresh to get AI feedback'}
+				{modalState === ModalState.Initial
+					? 'Click refresh to get AI feedback'
+					: result}
 			</ResponseContent>
 			<ResponseActions>
 				<ActionButton onClick={() => handlePlusClick(result)}>➕</ActionButton>
 				<ActionButton onClick={() => handleHeartClick(result)}>❤️</ActionButton>
-				<ActionButton onClick={toggleEmotionsBar}>🫀</ActionButton>
 			</ResponseActions>
 			{isEmotionsBarVisible && (
 				<EmotionsBar onEmotionClick={handleEmotionClick} />

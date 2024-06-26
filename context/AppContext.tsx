@@ -10,13 +10,13 @@ import {
 	fetchMemories,
 	openAIMemoriesNote,
 	saveMemoriesToNote,
-	getMemoriesContent,
 	getAIMemoriesContent,
 } from '../utils/memoryUtils'
 import {
 	AppContextProps,
 	AppProviderProps,
 	FetchTherapyResponseParams,
+	ModalState,
 } from '../types'
 
 import {
@@ -42,7 +42,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
 	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
-	const [showModal, setShowModal] = useState(false)
+	const [modalState, setModalState] = useState<ModalState>(ModalState.Initial)
+
 	const [authMessage, setAuthMessage] = useState('')
 	const [length, setLength] = useState(plugin.settings.length)
 	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(true)
@@ -62,7 +63,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 			() => getAIMemoriesContent(plugin),
 		)
 		setResult(response)
-		setShowModal(true)
+		setModalState(ModalState.Show)
 		return response
 	}
 
@@ -77,7 +78,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				vibe,
 			})
 			setResult(result)
-			setShowModal(true)
+			setModalState(ModalState.Show)
 		} catch (error) {
 			console.error('Error generating therapy response:', error)
 		}
@@ -109,10 +110,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		e: React.ChangeEvent<HTMLSelectElement>,
 	) => {
 		setInsightFilter(e.target.value)
-	}
-
-	const handleCloseModal = () => {
-		setShowModal(false)
 	}
 
 	const updateUserInput = () => {
@@ -148,56 +145,68 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		[plugin],
 	)
 
+	const handleLengthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newLength = e.target.value
+		setLength(newLength)
+		plugin.settings.length = newLength
+		plugin.saveSettings()
+	}
+	const handleCloseModal = useCallback(() => {
+		setModalState(ModalState.Hide)
+	}, [])
+
+	const handleShowModal = useCallback(() => {
+		setModalState(ModalState.Show)
+	}, [])
 	return (
 		<AppContext.Provider
 			value={{
-				plugin,
-				generatePrompt,
 				apiKey,
-				setApiKey,
-				length,
-				setLength,
-				noteRange,
-				setNoteRange,
-				authToken,
-				setAuthToken,
-				email,
-				setEmail,
-				error,
-				setError,
 				authMessage,
-				setAuthMessage,
-				therapyType,
-				setTherapyType,
-				insightFilter,
-				setInsightFilter,
-				userInput,
-				setUserInput,
-				result,
-				setResult,
-				showModal,
-				setShowModal,
-				updateUserInput,
-				generateTherapyResponse,
-				fetchTherapyResponse,
-				handleTherapyTypeChange,
-				handleInsightFilterChange,
-				handleCloseModal,
-				handlePlusClick,
-				handleHeartClick,
-				vibe,
-				setVibe,
-				handleVibeChange,
-				isEmotionsBarVisible,
-				toggleEmotionsBar,
+				authToken,
 				closeEmotionsBar,
-				handleEmotionClick,
-
+				email,
+				error,
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
+				fetchTherapyResponse,
+				generatePrompt,
+				generateTherapyResponse,
+				handleEmotionClick,
+				handleHeartClick,
+				handleCloseModal,
+				handleShowModal,
+				handleInsightFilterChange,
+				handleLengthChange,
+				handlePlusClick,
+				handleTherapyTypeChange,
+				handleVibeChange,
+				insightFilter,
+				isEmotionsBarVisible,
+				length,
+				modalState,
+				noteRange,
 				openAIMemoriesNote: () => openAIMemoriesNote(plugin),
-				saveMemoriesToNote: (memories: string) =>
-					saveMemoriesToNote(plugin, memories),
-				getMemoriesContent: () => getMemoriesContent(plugin),
+				plugin,
+				result,
+				saveMemoriesToNote: (memories: string) => saveMemoriesToNote(plugin),
+				setApiKey,
+				setAuthMessage,
+				setAuthToken,
+				setEmail,
+				setError,
+				setInsightFilter,
+				setLength,
+				setModalState,
+				setNoteRange,
+				setResult,
+				setTherapyType,
+				setUserInput,
+				setVibe,
+				therapyType,
+				toggleEmotionsBar,
+				updateUserInput,
+				userInput,
+				vibe,
 			}}
 		>
 			{children}

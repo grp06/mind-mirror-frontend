@@ -2,7 +2,7 @@ import { Plugin, MarkdownView } from 'obsidian'
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import DropdownContainer from './components/DropdownContainer'
-import SettingsTab from './SettingsTab'
+import SettingsTab from './components/SettingsTab'
 import { AppProvider } from './context/AppContext'
 
 export default class MyPlugin extends Plugin {

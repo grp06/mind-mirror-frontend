@@ -7,6 +7,8 @@ import {
 	TherapyModal,
 	UpdateMemoriesButton,
 	RefreshButton,
+	ActionButton,
+	EmotionsActionButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
 import { therapyTypes, insightFilters, vibeOptions } from '../data'
@@ -26,6 +28,11 @@ const DropdownContainer: React.FC = () => {
 		saveMemoriesToNote,
 		vibe,
 		handleVibeChange,
+		length,
+		handleLengthChange,
+		noteRange,
+		setNoteRange,
+		toggleEmotionsBar,
 	} = useAppContext()
 
 	useEffect(() => {
@@ -85,10 +92,40 @@ const DropdownContainer: React.FC = () => {
 						))}
 					</Select>
 				</InputItem>
+				<InputItem>
+					<Label htmlFor="length-dropdown">Length</Label>
+					<Select
+						id="length-dropdown"
+						value={length}
+						onChange={handleLengthChange}
+					>
+						<option value="one sentence">One Sentence</option>
+						<option value="three sentences">Three Sentences</option>
+						<option value="one paragraph">One Paragraph</option>
+					</Select>
+				</InputItem>
+				<InputItem>
+					<Label htmlFor="note-range-dropdown">Note Range</Label>
+					<Select
+						id="note-range-dropdown"
+						value={noteRange}
+						onChange={(e) => setNoteRange(e.target.value)}
+					>
+						<option value="current">Just this note</option>
+						<option value="last2">Last 2 notes</option>
+						<option value="last3">Last 3 notes</option>
+						<option value="last5">Last 5 notes</option>
+						<option value="last10">Last 10 notes</option>
+						<option value="last20">Last 20 notes</option>
+					</Select>
+				</InputItem>
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
 				<UpdateMemoriesButton onClick={saveMemoriesToNote}>
 					Update Memories
 				</UpdateMemoriesButton>
+				<EmotionsActionButton onClick={toggleEmotionsBar}>
+					🫀
+				</EmotionsActionButton>
 			</TherapyModal>
 			<ResponseModal />
 		</>

@@ -101,7 +101,7 @@ export const SaveButton = styled.button`
 export const TherapyModal = styled(Wrapper)`
 	position: absolute;
 	bottom: 35px;
-	max-height: 35vh;
+	max-height: 40vh;
 	overflow-y: auto;
 	right: 15px;
 	width: 300px;
@@ -119,12 +119,12 @@ export const ResponseModalContainer = styled.div`
 	right: 14px;
 	background-color: #2c2c2c;
 	border: 1px solid #555;
-	padding: 20px;
+	padding: 27px 20px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	border-radius: 8px;
 	font-family: Arial, sans-serif;
 	color: #f0f0f0;
-	width: 300px;
+	width: 360px;
 	z-index: 1000;
 	display: flex;
 	flex-direction: column;
@@ -151,6 +151,16 @@ export const ActionButton = styled.button`
 	cursor: pointer;
 	color: #fff;
 `
+export const EmotionsActionButton = styled(ActionButton)`
+	background-color: transparent !important;
+	border: none;
+	font-size: 24px;
+	position: absolute;
+	cursor: pointer;
+	bottom: 7px;
+	left: 5px;
+`
+
 export const Title = styled.h2`
 	margin-top: 0;
 	font-size: 1.1rem;
@@ -186,12 +196,17 @@ export const ModalContent = styled.div`
 
 export const CloseButton = styled.button`
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 3px;
+	right: 7px;
 	background: none;
 	border: none;
-	font-size: 12px;
+	font-size: 20px;
+	padding: 0 7px;
 	cursor: pointer;
+	color: #888;
+	&:hover {
+		color: #333;
+	}
 `
 
 export const EmailDisplay = styled.div`
@@ -250,11 +265,12 @@ export const BarContainer = styled.div`
 	display: flex;
 	justify-content: space-around;
 	position: fixed;
-	top: 75px;
+	bottom: 0px;
 	background-color: #222;
-	right: 314px;
-	width: calc(80% - 320px);
+	right: 325px;
+	width: calc(80% - 325px);
 	z-index: 1000;
+	border-radius: 8px;
 `
 
 export const SecondaryPane = styled.div<{
@@ -266,11 +282,12 @@ export const SecondaryPane = styled.div<{
 	background-color: #222;
 	padding: 20px;
 	position: fixed;
-	top: 114px;
-	right: 314px;
-	width: calc(80% - 320px);
+	bottom: 36px;
+	right: 325px;
+	width: calc(80% - 325px);
 	z-index: 999;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	border-radius: 8px;
 `
 
 export const FloatingEmoji = styled.div<{ $isVisible: boolean }>`
