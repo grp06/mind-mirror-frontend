@@ -2,6 +2,7 @@ export const therapyTypes = [
 	'Cognitive Behavioral Therapy',
 	'Solution Focused Brief Therapy',
 	'Acceptance and Commitment Therapy',
+	'Depth Based Therapy',
 	'Somatic Experience',
 	'Gestalt Therapy',
 	'Mindfulness Based Cognitive Therapy',

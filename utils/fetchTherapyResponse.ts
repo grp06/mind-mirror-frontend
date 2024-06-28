@@ -29,7 +29,6 @@ export async function fetchTherapyResponse(
 		const userApiKey = plugin.settings.apiKey
 
 		const endpoint = userApiKey ? 'openai_with_user_api_key' : 'openai'
-		console.log('🚀 ~ endpoint:', endpoint)
 		const headers = {
 			'Content-Type': 'application/json',
 			...(userApiKey
@@ -51,7 +50,6 @@ export async function fetchTherapyResponse(
 		})
 
 		const data = await response.json()
-		console.log('🚀 ~ data:', data)
 
 		if (!response.ok) {
 			throw new Error(data.error || 'Unknown error')
