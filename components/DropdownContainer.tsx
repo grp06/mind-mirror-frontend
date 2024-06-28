@@ -12,6 +12,7 @@ import {
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
 import { therapyTypes, insightFilters, vibeOptions } from '../data'
+import { CustomInputWrapper, CustomInput } from './StyledComponents'
 
 const DropdownContainer: React.FC = () => {
 	const {
@@ -33,6 +34,21 @@ const DropdownContainer: React.FC = () => {
 		noteRange,
 		setNoteRange,
 		toggleEmotionsBar,
+		isCustomTherapyType,
+		isCustomInsightFilter,
+		isCustomVibe,
+		setIsCustomTherapyType,
+		setIsCustomInsightFilter,
+		setIsCustomVibe,
+		handleCustomTherapyTypeChange,
+		handleCustomInsightFilterChange,
+		handleCustomVibeChange,
+		submitCustomTherapyType,
+		submitCustomInsightFilter,
+		submitCustomVibe,
+		customTherapyType,
+		customInsightFilter,
+		customVibe,
 	} = useAppContext()
 
 	useEffect(() => {
@@ -50,75 +66,140 @@ const DropdownContainer: React.FC = () => {
 		}
 	}, [authToken, setAuthMessage])
 
+	const renderCustomInput = (
+		value: string,
+		onChange: (value: string) => void,
+		onSubmit: () => void,
+	) => (
+		<CustomInputWrapper>
+			<CustomInput
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				onKeyPress={(e) => e.key === 'Enter' && onSubmit()}
+			/>
+			<button onClick={onSubmit}>✓</button>
+		</CustomInputWrapper>
+	)
+
 	return (
 		<>
 			{authMessage && <div>{authMessage}</div>}
 			<TherapyModal>
 				<InputItem>
 					<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
-					<Select
-						id="therapy-type-dropdown"
-						value={therapyType}
-						onChange={handleTherapyTypeChange}
-					>
-						{therapyTypes.map((type) => (
-							<option key={type} value={type}>
-								{type}
-							</option>
-						))}
-					</Select>
+					{isCustomTherapyType ? (
+						<CustomInputWrapper>
+							<CustomInput
+								value={customTherapyType}
+								onChange={(e) => handleCustomTherapyTypeChange(e.target.value)}
+								onKeyPress={(e) =>
+									e.key === 'Enter' && submitCustomTherapyType()
+								}
+							/>
+							<button onClick={submitCustomTherapyType}>✓</button>
+						</CustomInputWrapper>
+					) : (
+						<Select
+							id="therapy-type-dropdown"
+							value={therapyType}
+							onChange={(e) => {
+								if (e.target.value === 'Add my own') {
+									setIsCustomTherapyType(true)
+								} else {
+									handleTherapyTypeChange(e)
+								}
+							}}
+						>
+							{therapyTypes.map((type) => (
+								<option key={type} value={type}>
+									{type}
+								</option>
+							))}
+							{!therapyTypes.includes(therapyType) && (
+								<option key={therapyType} value={therapyType}>
+									{therapyType}
+								</option>
+							)}
+						</Select>
+					)}
 				</InputItem>
 				<InputItem>
-					<Label htmlFor="insight-filter-dropdown">Insight Filter</Label>
-					<Select
-						id="insight-filter-dropdown"
-						value={insightFilter}
-						onChange={handleInsightFilterChange}
-					>
-						{insightFilters.map((filter) => (
-							<option key={filter} value={filter}>
-								{filter}
-							</option>
-						))}
-					</Select>
+					<Label htmlFor="insight-filters-dropdown">Insight Filters</Label>
+					{isCustomInsightFilter ? (
+						<CustomInputWrapper>
+							<CustomInput
+								value={customInsightFilter}
+								onChange={(e) =>
+									handleCustomInsightFilterChange(e.target.value)
+								}
+								onKeyPress={(e) =>
+									e.key === 'Enter' && submitCustomInsightFilter()
+								}
+							/>
+							<button onClick={submitCustomInsightFilter}>✓</button>
+						</CustomInputWrapper>
+					) : (
+						<Select
+							id="insight-filters-dropdown"
+							value={insightFilter}
+							onChange={(e) => {
+								if (e.target.value === 'Add my own') {
+									setIsCustomInsightFilter(true)
+								} else {
+									handleInsightFilterChange(e)
+								}
+							}}
+						>
+							{insightFilters.map((type) => (
+								<option key={type} value={type}>
+									{type}
+								</option>
+							))}
+							{!insightFilters.includes(insightFilter) && (
+								<option key={insightFilter} value={insightFilter}>
+									{insightFilter}
+								</option>
+							)}
+						</Select>
+					)}
 				</InputItem>
 				<InputItem>
 					<Label htmlFor="vibe-dropdown">Vibe</Label>
-					<Select id="vibe-dropdown" value={vibe} onChange={handleVibeChange}>
-						{vibeOptions.map((option) => (
-							<option key={option} value={option}>
-								{option}
-							</option>
-						))}
-					</Select>
+					{isCustomVibe ? (
+						<CustomInputWrapper>
+							<CustomInput
+								value={customVibe}
+								onChange={(e) => handleCustomVibeChange(e.target.value)}
+								onKeyPress={(e) => e.key === 'Enter' && submitCustomVibe()}
+							/>
+							<button onClick={submitCustomVibe}>✓</button>
+						</CustomInputWrapper>
+					) : (
+						<Select
+							id="vibe-dropdown"
+							value={vibe}
+							onChange={(e) => {
+								if (e.target.value === 'Add my own') {
+									setIsCustomVibe(true)
+								} else {
+									handleVibeChange(e)
+								}
+							}}
+						>
+							{vibeOptions.map((type) => (
+								<option key={type} value={type}>
+									{type}
+								</option>
+							))}
+							{!vibeOptions.includes(vibe) && (
+								<option key={vibe} value={vibe}>
+									{vibe}
+								</option>
+							)}
+						</Select>
+					)}
 				</InputItem>
-				<InputItem>
-					<Label htmlFor="length-dropdown">Length</Label>
-					<Select
-						id="length-dropdown"
-						value={length}
-						onChange={handleLengthChange}
-					>
-						<option value="one sentence">One Sentence</option>
-						<option value="three sentences">Three Sentences</option>
-						<option value="one paragraph">One Paragraph</option>
-					</Select>
-				</InputItem>
-				<InputItem>
-					<Label htmlFor="note-range-dropdown">Note Range</Label>
-					<Select
-						id="note-range-dropdown"
-						value={noteRange}
-						onChange={(e) => setNoteRange(e.target.value)}
-					>
-						<option value="current">Just this note</option>
-						<option value="last2">Last 2 notes</option>
-						<option value="last3">Last 3 notes</option>
-						<option value="last5">Last 5 notes</option>
-						<option value="last10">Last 10 notes</option>
-						<option value="last20">Last 20 notes</option>
-					</Select>
-				</InputItem>
+
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
 				<UpdateMemoriesButton onClick={saveMemoriesToNote}>
 					Update Memories

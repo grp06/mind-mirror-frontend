@@ -306,3 +306,17 @@ export const CloseEmotionsButton = styled.div`
 	margin-left: 10px;
 	align-self: center;
 `
+
+// New styled components
+export const CustomInputWrapper = styled.div`
+	position: relative;
+	display: flex;
+	align-items: center;
+`
+
+export const CustomInput = styled.input`
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+`

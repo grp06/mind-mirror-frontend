@@ -49,7 +49,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [length, setLength] = useState(plugin.settings.length)
 	const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(true)
 	const [vibe, setVibe] = useState('Neutral')
-
+	const [customTherapyType, setCustomTherapyType] = useState('')
+	const [customInsightFilter, setCustomInsightFilter] = useState('')
+	const [customVibe, setCustomVibe] = useState('')
+	const [isCustomTherapyType, setIsCustomTherapyType] = useState(false)
+	const [isCustomInsightFilter, setIsCustomInsightFilter] = useState(false)
+	const [isCustomVibe, setIsCustomVibe] = useState(false)
 	useEffect(() => {
 		plugin.settings.length = length
 		plugin.saveSettings()
@@ -159,6 +164,36 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const handleShowModal = useCallback(() => {
 		setModalState(ModalState.Show)
 	}, [])
+
+	const handleCustomTherapyTypeChange = (value: string) => {
+		setCustomTherapyType(value)
+	}
+
+	const submitCustomTherapyType = () => {
+		if (customTherapyType.trim() !== '') {
+			setTherapyType(customTherapyType)
+			setIsCustomTherapyType(false)
+		}
+	}
+
+	const handleCustomInsightFilterChange = (value: string) => {
+		setCustomInsightFilter(value)
+	}
+
+	const handleCustomVibeChange = (value: string) => {
+		setCustomVibe(value)
+	}
+
+	const submitCustomInsightFilter = () => {
+		setInsightFilter(customInsightFilter)
+		setIsCustomInsightFilter(false)
+	}
+
+	const submitCustomVibe = () => {
+		setVibe(customVibe)
+		setIsCustomVibe(false)
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -208,6 +243,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				updateUserInput,
 				userInput,
 				vibe,
+				customTherapyType,
+				customInsightFilter,
+				customVibe,
+				isCustomTherapyType,
+				isCustomInsightFilter,
+				isCustomVibe,
+				setIsCustomTherapyType,
+				setIsCustomInsightFilter,
+				setIsCustomVibe,
+				handleCustomTherapyTypeChange,
+				handleCustomInsightFilterChange,
+				handleCustomVibeChange,
+				submitCustomTherapyType,
+				submitCustomInsightFilter,
+				submitCustomVibe,
 			}}
 		>
 			{children}

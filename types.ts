@@ -57,6 +57,24 @@ export interface AppContextProps {
 	handleEmotionClick: (emotion: string) => void
 	modalState: ModalState
 	setModalState: React.Dispatch<React.SetStateAction<ModalState>>
+	customTherapyType: string
+	customInsightFilter: string
+	customVibe: string
+	setCustomTherapyType: (value: string) => void
+	setCustomInsightFilter: (value: string) => void
+	setCustomVibe: (value: string) => void
+	isCustomTherapyType: boolean
+	isCustomInsightFilter: boolean
+	isCustomVibe: boolean
+	setIsCustomTherapyType: (isCustom: boolean) => void
+	setIsCustomInsightFilter: (isCustom: boolean) => void
+	setIsCustomVibe: (isCustom: boolean) => void
+	handleCustomTherapyTypeChange: (value: string) => void
+	handleCustomInsightFilterChange: (value: string) => void
+	handleCustomVibeChange: (value: string) => void
+	submitCustomTherapyType: () => void
+	submitCustomInsightFilter: () => void
+	submitCustomVibe: () => void
 }
 
 export interface AppProviderProps {

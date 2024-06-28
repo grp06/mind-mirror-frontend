@@ -11,6 +11,7 @@ export const therapyTypes = [
 	'Existential Therapy',
 	'Interpersonal Therapy',
 	'Family Systems Therapy',
+	'Add my own',
 ]
 
 export const insightFilters = [
@@ -24,6 +25,7 @@ export const insightFilters = [
 	'Generate Insights',
 	'Reframe Narratives',
 	'Plan Next Steps',
+	'Add my own',
 ]
 
 export const vibeOptions = [
@@ -38,7 +40,7 @@ export const vibeOptions = [
 	'Compassionate',
 	'Pragmatic',
 	'Critical',
-	'A real asshole',
+	'Add my own',
 ]
 export interface EmotionCategory {
 	level0: string
