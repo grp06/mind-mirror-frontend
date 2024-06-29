@@ -15,6 +15,55 @@ export default class MyPlugin extends Plugin {
 	}
 
 	authMessage = ''
+	async getFilteredMemories(range: string): Promise<string> {
+		if (range === 'none') {
+			return ''
+		}
+
+		const aiMemoriesFile =
+			this.app.vault.getAbstractFileByPath('AI-memories.md')
+		if (!(aiMemoriesFile instanceof TFile)) {
+			return ''
+		}
+
+		const content = await this.app.vault.read(aiMemoriesFile)
+		const lines = content.split('\n').filter((line) => line.trim() !== '')
+
+		if (range === 'all') {
+			return content
+		}
+
+		const currentDate = new Date()
+		console.log(
+			'🚀 ~ MyPlugin ~ getFilteredMemories ~ currentDate:',
+			currentDate,
+		)
+		currentDate.setHours(0, 0, 0, 0)
+		const [, count] = range.match(/last(\d+)/) || []
+		const daysToInclude = parseInt(count, 10) || 0
+		console.log(
+			'🚀 ~ MyPlugin ~ getFilteredMemories ~ daysToInclude:',
+			daysToInclude,
+		)
+
+		const cutoffDate = new Date(currentDate)
+		cutoffDate.setDate(currentDate.getDate() - daysToInclude)
+
+		const filteredLines = lines.filter((line) => {
+			const dateMatch = line.match(/(\d{4}-\d{2}-\d{2})$/)
+			if (dateMatch) {
+				const memoryDate = new Date(dateMatch[1] + 'T00:00:00')
+				return memoryDate >= cutoffDate && memoryDate < currentDate
+			}
+			return false
+		})
+
+		console.log('Cutoff date:', cutoffDate.toISOString().split('T')[0])
+		console.log('Filtered memories:', filteredLines.length)
+
+		return filteredLines.join('\n')
+	}
+
 	async getRecentNotes(range: string): Promise<string[]> {
 		const files = this.app.vault.getMarkdownFiles()
 		const currentFile = this.app.workspace.getActiveFile()

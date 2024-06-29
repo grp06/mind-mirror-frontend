@@ -33,6 +33,8 @@ const DropdownContainer: React.FC = () => {
 		noteRange,
 		handleNoteRangeChange,
 		toggleEmotionsBar,
+		memoryRange,
+		handleMemoryRangeChange,
 	} = useAppContext()
 
 	useEffect(() => {
@@ -140,6 +142,20 @@ const DropdownContainer: React.FC = () => {
 						<option value="last5">Last 5 notes</option>
 						<option value="last10">Last 10 notes</option>
 						<option value="last20">Last 20 notes</option>
+					</Select>
+				</InputItem>
+				<InputItem>
+					<Label htmlFor="memory-range-dropdown">Memory Range</Label>
+					<Select
+						id="memory-range-dropdown"
+						value={memoryRange}
+						onChange={handleMemoryRangeChange}
+					>
+						<option value="all">All Memories</option>
+						<option value="last5">Last 5 days</option>
+						<option value="last10">Last 10 days</option>
+						<option value="last30">Last 30 days</option>
+						<option value="none">Don't use memories</option>
 					</Select>
 				</InputItem>
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>

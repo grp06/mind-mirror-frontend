@@ -31,6 +31,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [authToken, setAuthToken] = useState<string | null>(
 		localStorage.getItem('authToken'),
 	)
+	const [memoryRange, setMemoryRange] = useState('all')
 
 	const [email, setEmail] = useState('')
 
@@ -64,6 +65,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 			const prompt = generatePrompt()
 			setIsTherapistThinking(true)
 			setModalState(ModalState.Show)
+			const filteredMemories = await plugin.getFilteredMemories(memoryRange)
 			const result = await fetchTherapyResponse({
 				prompt,
 				userInput,
@@ -71,7 +73,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				vibe,
 				length,
 				plugin,
-				getAIMemoriesContent: () => getAIMemoriesContent(plugin),
+				getAIMemoriesContent: () => filteredMemories,
 			})
 			setResult(result)
 			setModalState(ModalState.Show)
@@ -194,6 +196,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		plugin.saveSettings()
 	}
 
+	const handleMemoryRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		setMemoryRange(e.target.value)
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -262,6 +268,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				updateUserInput,
 				userInput,
 				vibe,
+				memoryRange,
+				handleMemoryRangeChange,
 			}}
 		>
 			{children}

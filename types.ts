@@ -86,6 +86,8 @@ export interface AppContextProps {
 	updateUserInput: () => void
 	userInput: string
 	vibe: string
+	memoryRange: string
+	handleMemoryRangeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 }
 
 export interface AppProviderProps {

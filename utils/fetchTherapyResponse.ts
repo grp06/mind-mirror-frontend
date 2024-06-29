@@ -10,17 +10,16 @@ export async function fetchTherapyResponse({
 	plugin,
 	getAIMemoriesContent,
 }: FetchTherapyResponseParams): Promise<string> {
-	console.log('🚀 ~ noteRange:', noteRange)
 	try {
 		let notesContent = userInput
 
 		if (noteRange !== 'current' && noteRange !== 'just this note') {
 			const notes = await plugin.getRecentNotes(noteRange)
 			notesContent = notes.join('\n\n')
-			console.log('🚀 ~ notesContent:', notesContent)
 		}
 
 		const memoriesContent = await getAIMemoriesContent()
+		console.log('🚀 ~ memoriesContent:', memoriesContent)
 
 		const authToken = localStorage.getItem('authToken')
 		const userApiKey = (plugin as MyPlugin).settings.apiKey
@@ -32,7 +31,6 @@ export async function fetchTherapyResponse({
 				? { Authorization: `Bearer ${userApiKey}` }
 				: { Authorization: `Bearer ${authToken}` }),
 		}
-		console.log('🚀 ~ notesContent:', notesContent)
 
 		const response = await fetch(`http://127.0.0.1:8000/backend/${endpoint}/`, {
 			method: 'POST',
