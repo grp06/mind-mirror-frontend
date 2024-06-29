@@ -34,7 +34,6 @@ export const vibeOptions = [
 	'Tough Love',
 	'Optimistic',
 	'Analytical',
-	'Playful',
 	'Motivational',
 	'Reflective',
 	'Compassionate',

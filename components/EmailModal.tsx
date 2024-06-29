@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, ChangeEvent } from 'react'
 import {
 	ModalWrapper,
 	ModalContent,
@@ -72,20 +72,26 @@ const EmailModal: React.FC<EmailModalProps> = ({
 					type="email"
 					placeholder="Enter your email"
 					value={email}
-					onChange={(e) => setEmail(e.target.value)}
+					onChange={(e: ChangeEvent<HTMLInputElement>) =>
+						setEmail(e.target.value)
+					}
 				/>
 				<Input
 					type="password"
 					placeholder="Enter your password"
 					value={password}
-					onChange={(e) => setPassword(e.target.value)}
+					onChange={(e: ChangeEvent<HTMLInputElement>) =>
+						setPassword(e.target.value)
+					}
 				/>
 				{isSignUp && (
 					<Input
 						type="password"
 						placeholder="Repeat your password"
 						value={repeatPassword}
-						onChange={(e) => setRepeatPassword(e.target.value)}
+						onChange={(e: ChangeEvent<HTMLInputElement>) =>
+							setRepeatPassword(e.target.value)
+						}
 					/>
 				)}
 				<ButtonContainer>

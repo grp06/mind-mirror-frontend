@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, MouseEvent as ReactMouseEvent } from 'react'
 import { useAppContext } from '../context/AppContext'
 import {
 	InputItem,
@@ -7,12 +7,11 @@ import {
 	TherapyModal,
 	UpdateMemoriesButton,
 	RefreshButton,
-	ActionButton,
 	EmotionsActionButton,
 } from './StyledComponents'
 import ResponseModal from './ResponseModal'
 import { therapyTypes, insightFilters, vibeOptions } from '../data'
-import { CustomInputWrapper, CustomInput } from './StyledComponents'
+import CustomizableDropdown from './CustomizableDropdown'
 
 const DropdownContainer: React.FC = () => {
 	const {
@@ -32,23 +31,8 @@ const DropdownContainer: React.FC = () => {
 		length,
 		handleLengthChange,
 		noteRange,
-		setNoteRange,
+		handleNoteRangeChange,
 		toggleEmotionsBar,
-		isCustomTherapyType,
-		isCustomInsightFilter,
-		isCustomVibe,
-		setIsCustomTherapyType,
-		setIsCustomInsightFilter,
-		setIsCustomVibe,
-		handleCustomTherapyTypeChange,
-		handleCustomInsightFilterChange,
-		handleCustomVibeChange,
-		submitCustomTherapyType,
-		submitCustomInsightFilter,
-		submitCustomVibe,
-		customTherapyType,
-		customInsightFilter,
-		customVibe,
 	} = useAppContext()
 
 	useEffect(() => {
@@ -65,143 +49,101 @@ const DropdownContainer: React.FC = () => {
 			setAuthMessage('Please authenticate')
 		}
 	}, [authToken, setAuthMessage])
+	const handleCustomSubmit =
+		(type: 'therapy' | 'insight' | 'vibe') => (value: string) => {
+			switch (type) {
+				case 'therapy':
+					handleTherapyTypeChange({
+						target: { value },
+					} as React.ChangeEvent<HTMLSelectElement>)
+					break
+				case 'insight':
+					handleInsightFilterChange({
+						target: { value },
+					} as React.ChangeEvent<HTMLSelectElement>)
+					break
+				case 'vibe':
+					handleVibeChange({
+						target: { value },
+					} as React.ChangeEvent<HTMLSelectElement>)
+					break
+			}
+		}
 
-	const renderCustomInput = (
-		value: string,
-		onChange: (value: string) => void,
-		onSubmit: () => void,
-	) => (
-		<CustomInputWrapper>
-			<CustomInput
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				onKeyPress={(e) => e.key === 'Enter' && onSubmit()}
-			/>
-			<button onClick={onSubmit}>✓</button>
-		</CustomInputWrapper>
-	)
-
+	const handleSaveMemories = (event: ReactMouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+		saveMemoriesToNote()
+	}
 	return (
 		<>
 			{authMessage && <div>{authMessage}</div>}
 			<TherapyModal>
+				<CustomizableDropdown
+					label="Type of Therapy"
+					options={therapyTypes}
+					value={therapyType}
+					onChange={(value) =>
+						handleTherapyTypeChange({
+							target: { value },
+						} as React.ChangeEvent<HTMLSelectElement>)
+					}
+					onCustomSubmit={handleCustomSubmit('therapy')}
+					placeholder="Enter your own therapy type"
+				/>
+				<CustomizableDropdown
+					label="Insight Filters"
+					options={insightFilters}
+					value={insightFilter}
+					onChange={(value) =>
+						handleInsightFilterChange({
+							target: { value },
+						} as React.ChangeEvent<HTMLSelectElement>)
+					}
+					onCustomSubmit={handleCustomSubmit('insight')}
+					placeholder="Enter the insight you want"
+				/>
+				<CustomizableDropdown
+					label="Vibe"
+					options={vibeOptions}
+					value={vibe}
+					onChange={(value) =>
+						handleVibeChange({
+							target: { value },
+						} as React.ChangeEvent<HTMLSelectElement>)
+					}
+					onCustomSubmit={handleCustomSubmit('vibe')}
+					placeholder="Enter the therapist's vibe"
+				/>
 				<InputItem>
-					<Label htmlFor="therapy-type-dropdown">Type of Therapy</Label>
-					{isCustomTherapyType ? (
-						<CustomInputWrapper>
-							<CustomInput
-								value={customTherapyType}
-								onChange={(e) => handleCustomTherapyTypeChange(e.target.value)}
-								onKeyPress={(e) =>
-									e.key === 'Enter' && submitCustomTherapyType()
-								}
-							/>
-							<button onClick={submitCustomTherapyType}>✓</button>
-						</CustomInputWrapper>
-					) : (
-						<Select
-							id="therapy-type-dropdown"
-							value={therapyType}
-							onChange={(e) => {
-								if (e.target.value === 'Add my own') {
-									setIsCustomTherapyType(true)
-								} else {
-									handleTherapyTypeChange(e)
-								}
-							}}
-						>
-							{therapyTypes.map((type) => (
-								<option key={type} value={type}>
-									{type}
-								</option>
-							))}
-							{!therapyTypes.includes(therapyType) && (
-								<option key={therapyType} value={therapyType}>
-									{therapyType}
-								</option>
-							)}
-						</Select>
-					)}
+					<Label htmlFor="length-dropdown">Length</Label>
+					<Select
+						id="length-dropdown"
+						value={length}
+						onChange={handleLengthChange}
+					>
+						<option value="one sentence">One Sentence</option>
+						<option value="three sentences">Three Sentences</option>
+						<option value="one paragraph">One Paragraph</option>
+						<option value="as long as possible">As Long As Possible</option>
+					</Select>
 				</InputItem>
 				<InputItem>
-					<Label htmlFor="insight-filters-dropdown">Insight Filters</Label>
-					{isCustomInsightFilter ? (
-						<CustomInputWrapper>
-							<CustomInput
-								value={customInsightFilter}
-								onChange={(e) =>
-									handleCustomInsightFilterChange(e.target.value)
-								}
-								onKeyPress={(e) =>
-									e.key === 'Enter' && submitCustomInsightFilter()
-								}
-							/>
-							<button onClick={submitCustomInsightFilter}>✓</button>
-						</CustomInputWrapper>
-					) : (
-						<Select
-							id="insight-filters-dropdown"
-							value={insightFilter}
-							onChange={(e) => {
-								if (e.target.value === 'Add my own') {
-									setIsCustomInsightFilter(true)
-								} else {
-									handleInsightFilterChange(e)
-								}
-							}}
-						>
-							{insightFilters.map((type) => (
-								<option key={type} value={type}>
-									{type}
-								</option>
-							))}
-							{!insightFilters.includes(insightFilter) && (
-								<option key={insightFilter} value={insightFilter}>
-									{insightFilter}
-								</option>
-							)}
-						</Select>
-					)}
+					<Label htmlFor="note-range-dropdown">Note Range</Label>
+					<Select
+						id="note-range-dropdown"
+						value={noteRange}
+						onChange={handleNoteRangeChange}
+					>
+						<option value="current">Just this note</option>
+						<option value="last2">Last 2 notes</option>
+						<option value="last3">Last 3 notes</option>
+						<option value="last5">Last 5 notes</option>
+						<option value="last10">Last 10 notes</option>
+						<option value="last20">Last 20 notes</option>
+					</Select>
 				</InputItem>
-				<InputItem>
-					<Label htmlFor="vibe-dropdown">Vibe</Label>
-					{isCustomVibe ? (
-						<CustomInputWrapper>
-							<CustomInput
-								value={customVibe}
-								onChange={(e) => handleCustomVibeChange(e.target.value)}
-								onKeyPress={(e) => e.key === 'Enter' && submitCustomVibe()}
-							/>
-							<button onClick={submitCustomVibe}>✓</button>
-						</CustomInputWrapper>
-					) : (
-						<Select
-							id="vibe-dropdown"
-							value={vibe}
-							onChange={(e) => {
-								if (e.target.value === 'Add my own') {
-									setIsCustomVibe(true)
-								} else {
-									handleVibeChange(e)
-								}
-							}}
-						>
-							{vibeOptions.map((type) => (
-								<option key={type} value={type}>
-									{type}
-								</option>
-							))}
-							{!vibeOptions.includes(vibe) && (
-								<option key={vibe} value={vibe}>
-									{vibe}
-								</option>
-							)}
-						</Select>
-					)}
-				</InputItem>
-
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
-				<UpdateMemoriesButton onClick={saveMemoriesToNote}>
+				<UpdateMemoriesButton onClick={handleSaveMemories}>
 					Update Memories
 				</UpdateMemoriesButton>
 				<EmotionsActionButton onClick={toggleEmotionsBar}>

@@ -13,6 +13,9 @@ import {
 	SaveButton,
 	EmailDisplay,
 } from './StyledComponents'
+import { fetchUserEmail } from '../utils/fetchUserEmail'
+import MyPlugin from '../main'
+import { ExtendedApp } from '../types'
 
 const SettingsTabContent: React.FC = () => {
 	const {
@@ -22,7 +25,6 @@ const SettingsTabContent: React.FC = () => {
 		setAuthToken,
 		email,
 		setEmail,
-		error,
 		setError,
 		plugin,
 	} = useAppContext()
@@ -30,39 +32,12 @@ const SettingsTabContent: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	useEffect(() => {
-		const fetchUserEmail = async () => {
-			if (authToken) {
-				try {
-					const response = await fetch(
-						'http://127.0.0.1:8000/backend/user_info/',
-						{
-							headers: {
-								Authorization: `Bearer ${authToken}`,
-							},
-						},
-					)
-					if (response.ok) {
-						const data = await response.json()
-						setEmail(data.email)
-					} else {
-						console.error('Failed to fetch user email')
-						setAuthToken(null)
-						setEmail('')
-					}
-				} catch (error) {
-					console.error('Error fetching user email:', error)
-					setAuthToken(null)
-					setEmail('')
-				}
-			}
-		}
-
-		fetchUserEmail()
+		fetchUserEmail(authToken, setAuthToken, setEmail)
 	}, [authToken, setAuthToken, setEmail])
 
 	const handleSaveButtonClick = async () => {
 		await plugin.saveSettings()
-		plugin.app.setting.close()
+		;(plugin.app as ExtendedApp).setting.close()
 	}
 
 	const handleAuthButtonClick = () => {
@@ -125,7 +100,9 @@ const SettingsTabContent: React.FC = () => {
 				<Input
 					type="text"
 					value={apiKey}
-					onChange={(e) => setApiKey(e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						setApiKey(e.target.value)
+					}
 					placeholder="Enter your API key"
 				/>
 			</InputItem>
@@ -153,7 +130,7 @@ export default class SettingsTab extends PluginSettingTab {
 	plugin: MyPlugin
 	root: Root | null = null
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: ExtendedApp, plugin: MyPlugin) {
 		super(app, plugin)
 		this.plugin = plugin
 	}

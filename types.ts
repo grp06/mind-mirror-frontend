@@ -1,6 +1,13 @@
 import { ReactNode } from 'react'
 import MyPlugin from './main'
 
+import { App as ObsidianApp } from 'obsidian'
+
+export interface ExtendedApp extends ObsidianApp {
+	setting: {
+		close: () => void
+	}
+}
 export interface FetchTherapyResponseParams {
 	prompt: string
 	userInput: string
@@ -14,70 +21,81 @@ export enum ModalState {
 	Hide,
 }
 export interface AppContextProps {
-	plugin: MyPlugin
 	apiKey: string
-	generatePrompt: () => string
-	setApiKey: (apiKey: string) => void
-	length: string
-	setLength: (length: string) => void
-	noteRange: string
-	setNoteRange: (noteRange: string) => void
-	authToken: string | null
-	setAuthToken: (authToken: string | null) => void
-	email: string
-	setEmail: (email: string) => void
-	error: string
-	setError: (error: string) => void
 	authMessage: string
-	setAuthMessage: (message: string) => void
-	fetchTherapyResponse: (params: FetchTherapyResponseParams) => Promise<string>
-	fetchMemories: (userInput: string) => Promise<string>
-	openAIMemoriesNote: () => Promise<void>
-	therapyType: string
-	setTherapyType: (therapyType: string) => void
-	insightFilter: string
-	setInsightFilter: (insightFilter: string) => void
-	userInput: string
-	setUserInput: (userInput: string) => void
-	result: string
-	setResult: (result: string) => void
-	updateUserInput: () => void
-	generateTherapyResponse: () => Promise<void>
-	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	handlePlusClick: (advice: string) => Promise<void>
-	handleHeartClick: (advice: string) => Promise<void>
-	saveMemoriesToNote: (memories: string) => Promise<void>
-	vibe: string
-	setVibe: (vibe: string) => void
-	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-	isEmotionsBarVisible: boolean
-	toggleEmotionsBar: () => void
+	authToken: string | null
 	closeEmotionsBar: () => void
-	handleEmotionClick: (emotion: string) => void
-	modalState: ModalState
-	setModalState: React.Dispatch<React.SetStateAction<ModalState>>
-	customTherapyType: string
 	customInsightFilter: string
+	customTherapyType: string
 	customVibe: string
-	setCustomTherapyType: (value: string) => void
-	setCustomInsightFilter: (value: string) => void
-	setCustomVibe: (value: string) => void
-	isCustomTherapyType: boolean
-	isCustomInsightFilter: boolean
-	isCustomVibe: boolean
-	setIsCustomTherapyType: (isCustom: boolean) => void
-	setIsCustomInsightFilter: (isCustom: boolean) => void
-	setIsCustomVibe: (isCustom: boolean) => void
-	handleCustomTherapyTypeChange: (value: string) => void
+	email: string
+	error: string
+	fetchMemories: (userInput: string) => Promise<string>
+	fetchTherapyResponse: (params: FetchTherapyResponseParams) => Promise<string>
+	generatePrompt: () => string
+	generateTherapyResponse: () => Promise<void>
+	handleCloseModal: () => void
 	handleCustomInsightFilterChange: (value: string) => void
+	handleCustomTherapyTypeChange: (value: string) => void
 	handleCustomVibeChange: (value: string) => void
-	submitCustomTherapyType: () => void
+	handleEmotionClick: (emotion: string) => void
+	handleHeartClick: (advice: string) => Promise<void>
+	handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handleLengthChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handleNoteRangeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handlePlusClick: (advice: string) => Promise<void>
+	handleShowModal: () => void
+	handleTherapyTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	handleVibeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	insightFilter: string
+	isCustomInsightFilter: boolean
+	isCustomTherapyType: boolean
+	isCustomVibe: boolean
+	isEmotionsBarVisible: boolean
+	isTherapistThinking: boolean
+	length: string
+	modalState: ModalState
+	noteRange: string
+	openAIMemoriesNote: () => Promise<void>
+	plugin: MyPlugin
+	result: string
+	saveMemoriesToNote: () => Promise<void>
+	setApiKey: (apiKey: string) => void
+	setAuthMessage: (message: string) => void
+	setAuthToken: (authToken: string | null) => void
+	setCustomInsightFilter: (value: string) => void
+	setCustomTherapyType: (value: string) => void
+	setCustomVibe: (value: string) => void
+	setEmail: (email: string) => void
+	setError: (error: string) => void
+	setInsightFilter: (insightFilter: string) => void
+	setIsCustomInsightFilter: (isCustom: boolean) => void
+	setIsCustomTherapyType: (isCustom: boolean) => void
+	setIsCustomVibe: (isCustom: boolean) => void
+	setLength: (length: string) => void
+	setModalState: React.Dispatch<React.SetStateAction<ModalState>>
+	setNoteRange: (noteRange: string) => void
+	setResult: (result: string) => void
+	setTherapyType: (therapyType: string) => void
+	setUserInput: (userInput: string) => void
+	setVibe: (vibe: string) => void
 	submitCustomInsightFilter: () => void
+	submitCustomTherapyType: () => void
 	submitCustomVibe: () => void
+	therapyType: string
+	toggleEmotionsBar: () => void
+	updateUserInput: () => void
+	userInput: string
+	vibe: string
 }
 
 export interface AppProviderProps {
 	plugin: MyPlugin
 	children: ReactNode
+}
+
+export interface PluginSettings {
+	apiKey: string
+	length: string
+	noteRange: string
 }

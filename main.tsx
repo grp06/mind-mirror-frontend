@@ -4,10 +4,11 @@ import { createRoot, Root } from 'react-dom/client'
 import DropdownContainer from './components/DropdownContainer'
 import SettingsTab from './components/SettingsTab'
 import { AppProvider } from './context/AppContext'
+import { PluginSettings, ExtendedApp } from './types'
 
 export default class MyPlugin extends Plugin {
 	root: Root | null = null
-	settings: any = {
+	settings: PluginSettings = {
 		apiKey: '',
 		length: 'one sentence',
 		noteRange: 'current',
@@ -42,7 +43,7 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings()
-		this.addSettingTab(new SettingsTab(this.app, this))
+		this.addSettingTab(new SettingsTab(this.app as ExtendedApp, this))
 		const reactContainer = document.createElement('div')
 		document.body.appendChild(reactContainer)
 		this.root = createRoot(reactContainer)

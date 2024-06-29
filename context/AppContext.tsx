@@ -55,6 +55,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [isCustomTherapyType, setIsCustomTherapyType] = useState(false)
 	const [isCustomInsightFilter, setIsCustomInsightFilter] = useState(false)
 	const [isCustomVibe, setIsCustomVibe] = useState(false)
+
+	const [isTherapistThinking, setIsTherapistThinking] = useState(false)
+
 	useEffect(() => {
 		plugin.settings.length = length
 		plugin.saveSettings()
@@ -77,6 +80,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		try {
 			updateUserInput()
 			const prompt = generatePrompt()
+			setIsTherapistThinking(true)
+			setModalState(ModalState.Show)
 			const result = await fetchTherapyResponse({
 				prompt,
 				userInput,
@@ -84,9 +89,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				vibe,
 			})
 			setResult(result)
-			setModalState(ModalState.Show)
+			setIsTherapistThinking(false)
 		} catch (error) {
 			console.error('Error generating therapy response:', error)
+			setIsTherapistThinking(false)
 		}
 	}
 
@@ -194,6 +200,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		setIsCustomVibe(false)
 	}
 
+	const handleNoteRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newNoteRange = e.target.value
+		setNoteRange(newNoteRange)
+		plugin.settings.noteRange = newNoteRange
+		plugin.saveSettings()
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -201,36 +214,54 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				authMessage,
 				authToken,
 				closeEmotionsBar,
+				customInsightFilter,
+				customTherapyType,
+				customVibe,
 				email,
 				error,
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
 				fetchTherapyResponse,
 				generatePrompt,
 				generateTherapyResponse,
+				handleCloseModal,
+				handleCustomInsightFilterChange,
+				handleCustomTherapyTypeChange,
+				handleCustomVibeChange,
 				handleEmotionClick,
 				handleHeartClick,
-				handleCloseModal,
-				handleShowModal,
 				handleInsightFilterChange,
 				handleLengthChange,
+				handleNoteRangeChange,
 				handlePlusClick,
+
+				handleShowModal,
 				handleTherapyTypeChange,
 				handleVibeChange,
 				insightFilter,
+				isCustomInsightFilter,
+				isCustomTherapyType,
+				isCustomVibe,
 				isEmotionsBarVisible,
+				isTherapistThinking,
 				length,
 				modalState,
 				noteRange,
 				openAIMemoriesNote: () => openAIMemoriesNote(plugin),
 				plugin,
 				result,
-				saveMemoriesToNote: (memories: string) => saveMemoriesToNote(plugin),
+				saveMemoriesToNote: () => saveMemoriesToNote(plugin),
 				setApiKey,
 				setAuthMessage,
 				setAuthToken,
+				setCustomInsightFilter,
+				setCustomTherapyType,
+				setCustomVibe,
 				setEmail,
 				setError,
 				setInsightFilter,
+				setIsCustomInsightFilter,
+				setIsCustomTherapyType,
+				setIsCustomVibe,
 				setLength,
 				setModalState,
 				setNoteRange,
@@ -238,26 +269,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				setTherapyType,
 				setUserInput,
 				setVibe,
+				submitCustomInsightFilter,
+				submitCustomTherapyType,
+				submitCustomVibe,
 				therapyType,
 				toggleEmotionsBar,
 				updateUserInput,
 				userInput,
 				vibe,
-				customTherapyType,
-				customInsightFilter,
-				customVibe,
-				isCustomTherapyType,
-				isCustomInsightFilter,
-				isCustomVibe,
-				setIsCustomTherapyType,
-				setIsCustomInsightFilter,
-				setIsCustomVibe,
-				handleCustomTherapyTypeChange,
-				handleCustomInsightFilterChange,
-				handleCustomVibeChange,
-				submitCustomTherapyType,
-				submitCustomInsightFilter,
-				submitCustomVibe,
 			}}
 		>
 			{children}
