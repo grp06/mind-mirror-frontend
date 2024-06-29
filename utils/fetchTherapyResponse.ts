@@ -1,32 +1,29 @@
-export async function fetchTherapyResponse(
-	plugin: any,
-	{
-		prompt,
-		userInput,
-		noteRange,
-		length,
-		vibe,
-	}: {
-		prompt: string
-		userInput: string
-		noteRange: string
-		length: string
-		vibe: string
-	},
-	getAIMemoriesContent: () => Promise<string>,
-): Promise<string> {
+import { FetchTherapyResponseParams } from '../types'
+import MyPlugin from '../main'
+
+export async function fetchTherapyResponse({
+	prompt,
+	userInput,
+	noteRange,
+	length,
+	vibe,
+	plugin,
+	getAIMemoriesContent,
+}: FetchTherapyResponseParams): Promise<string> {
+	console.log('🚀 ~ noteRange:', noteRange)
 	try {
 		let notesContent = userInput
 
-		if (noteRange !== 'current') {
+		if (noteRange !== 'current' && noteRange !== 'just this note') {
 			const notes = await plugin.getRecentNotes(noteRange)
 			notesContent = notes.join('\n\n')
+			console.log('🚀 ~ notesContent:', notesContent)
 		}
 
 		const memoriesContent = await getAIMemoriesContent()
 
 		const authToken = localStorage.getItem('authToken')
-		const userApiKey = plugin.settings.apiKey
+		const userApiKey = (plugin as MyPlugin).settings.apiKey
 
 		const endpoint = userApiKey ? 'openai_with_user_api_key' : 'openai'
 		const headers = {
@@ -35,6 +32,7 @@ export async function fetchTherapyResponse(
 				? { Authorization: `Bearer ${userApiKey}` }
 				: { Authorization: `Bearer ${authToken}` }),
 		}
+		console.log('🚀 ~ notesContent:', notesContent)
 
 		const response = await fetch(`http://127.0.0.1:8000/backend/${endpoint}/`, {
 			method: 'POST',

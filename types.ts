@@ -31,7 +31,6 @@ export interface AppContextProps {
 	email: string
 	error: string
 	fetchMemories: (userInput: string) => Promise<string>
-	fetchTherapyResponse: (params: FetchTherapyResponseParams) => Promise<string>
 	generatePrompt: () => string
 	generateTherapyResponse: () => Promise<void>
 	handleCloseModal: () => void
@@ -98,4 +97,14 @@ export interface PluginSettings {
 	apiKey: string
 	length: string
 	noteRange: string
+}
+
+export interface FetchTherapyResponseParams {
+	prompt: string
+	userInput: string
+	noteRange: string
+	length: string
+	vibe: string
+	plugin: MyPlugin
+	getAIMemoriesContent: () => Promise<string>
 }

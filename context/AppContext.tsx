@@ -5,19 +5,14 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react'
-import { fetchTherapyResponse as fetchTherapyResponseAPI } from '../utils/fetchTherapyResponse'
+import { fetchTherapyResponse } from '../utils/fetchTherapyResponse'
 import {
 	fetchMemories,
 	openAIMemoriesNote,
 	saveMemoriesToNote,
 	getAIMemoriesContent,
 } from '../utils/memoryUtils'
-import {
-	AppContextProps,
-	AppProviderProps,
-	FetchTherapyResponseParams,
-	ModalState,
-} from '../types'
+import { AppContextProps, AppProviderProps, ModalState } from '../types'
 
 import {
 	updateUserInput as updateUserInputUI,
@@ -63,19 +58,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 		plugin.saveSettings()
 	}, [length, plugin])
 
-	const fetchTherapyResponse = async (
-		params: FetchTherapyResponseParams,
-	): Promise<string> => {
-		const response = await fetchTherapyResponseAPI(
-			plugin,
-			{ ...params, length },
-			() => getAIMemoriesContent(plugin),
-		)
-		setResult(response)
-		setModalState(ModalState.Show)
-		return response
-	}
-
 	const generateTherapyResponse = async () => {
 		try {
 			updateUserInput()
@@ -87,11 +69,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				userInput,
 				noteRange,
 				vibe,
+				length,
+				plugin,
+				getAIMemoriesContent: () => getAIMemoriesContent(plugin),
 			})
 			setResult(result)
-			setIsTherapistThinking(false)
+			setModalState(ModalState.Show)
 		} catch (error) {
 			console.error('Error generating therapy response:', error)
+			setError('Failed to generate response')
+		} finally {
 			setIsTherapistThinking(false)
 		}
 	}
@@ -220,7 +207,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				email,
 				error,
 				fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
-				fetchTherapyResponse,
 				generatePrompt,
 				generateTherapyResponse,
 				handleCloseModal,
@@ -233,7 +219,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				handleLengthChange,
 				handleNoteRangeChange,
 				handlePlusClick,
-
 				handleShowModal,
 				handleTherapyTypeChange,
 				handleVibeChange,

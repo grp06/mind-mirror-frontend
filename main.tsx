@@ -1,4 +1,4 @@
-import { Plugin, MarkdownView } from 'obsidian'
+import { Plugin, MarkdownView, TFile } from 'obsidian'
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import DropdownContainer from './components/DropdownContainer'
@@ -15,7 +15,47 @@ export default class MyPlugin extends Plugin {
 	}
 
 	authMessage = ''
+	async getRecentNotes(range: string): Promise<string[]> {
+		const files = this.app.vault.getMarkdownFiles()
+		const currentFile = this.app.workspace.getActiveFile()
+		if (!currentFile) return []
 
+		const dateRegex = /^\d{4}-\d{2}-\d{2}/
+		const filteredFiles = files.filter(
+			(file) => file.name.startsWith('2024') && dateRegex.test(file.name),
+		)
+
+		filteredFiles.sort((a, b) => b.stat.mtime - a.stat.mtime)
+
+		let notesToInclude: TFile[] = []
+
+		if (range === 'current' || range === 'just this note') {
+			notesToInclude = [currentFile]
+		} else {
+			const [, count] = range.match(/last(\d+)/) || []
+			const numNotes = parseInt(count, 10) || 1
+
+			notesToInclude = [currentFile]
+			let foundNotes = 0
+
+			for (const file of filteredFiles) {
+				if (file.path !== currentFile.path) {
+					notesToInclude.push(file)
+					foundNotes++
+					if (foundNotes >= numNotes - 1) break
+				}
+			}
+		}
+
+		const noteContents = await Promise.all(
+			notesToInclude.map(async (file) => {
+				const content = await this.app.vault.read(file)
+				return `# ${file.basename}\n\n${content}`
+			}),
+		)
+
+		return noteContents
+	}
 	async handleEmotionClick(emotion: string) {
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
 		if (!view) return
