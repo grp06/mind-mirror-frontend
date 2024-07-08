@@ -1,5 +1,6 @@
 import { FetchTherapyResponseParams } from '../types'
 import MyPlugin from '../main'
+import { getAIMemoriesContent } from './memoryUtils'
 
 export async function fetchTherapyResponse({
 	prompt,
@@ -8,15 +9,14 @@ export async function fetchTherapyResponse({
 	length,
 	vibe,
 	plugin,
-	getAIMemoriesContent,
+	memoryRange,
 }: FetchTherapyResponseParams): Promise<string> {
 	try {
 		const notes = await plugin.getRecentNotes(noteRange)
-		console.log('🚀 ~ notes:', notes)
 		const notesContent = notes.join('\n\n')
-		console.log('🚀 ~ notesContent:', notesContent)
+		const memoriesContent = await plugin.getFilteredMemories(memoryRange)
 
-		const memoriesContent = await getAIMemoriesContent()
+		console.log('🚀 ~ memoriesContent:', memoriesContent)
 
 		const authToken = localStorage.getItem('authToken')
 		const userApiKey = (plugin as MyPlugin).settings.apiKey

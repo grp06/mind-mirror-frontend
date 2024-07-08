@@ -10,7 +10,6 @@ import {
 	fetchMemories,
 	openAIMemoriesNote,
 	saveMemoriesToNote,
-	getAIMemoriesContent,
 } from '../utils/memoryUtils'
 import { AppContextProps, AppProviderProps, ModalState } from '../types'
 
@@ -59,21 +58,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
 	const generateTherapyResponse = async () => {
 		try {
-			// const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
-			// const userInput = view ? view.editor.getValue() : ''
-
 			const prompt = generatePrompt()
 			setIsTherapistThinking(true)
 			setModalState(ModalState.Show)
 			setErrorMessage('')
-			const filteredMemories = await plugin.getFilteredMemories(memoryRange)
+
 			const result = await fetchTherapyResponse({
 				prompt,
 				noteRange,
 				vibe,
 				length,
 				plugin,
-				getAIMemoriesContent: () => filteredMemories,
+				memoryRange,
 			})
 			setResult(result)
 			setModalState(ModalState.Show)

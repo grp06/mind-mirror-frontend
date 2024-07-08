@@ -4,16 +4,20 @@ import { fetchMemoriesFromAPI } from './fetchMemories'
 
 export const getAIMemoriesContent = async (
 	plugin: MyPlugin,
-	range: string,
+	range: string
 ): Promise<string> => {
+	console.log('🚀 ~ range:', range)
+	console.log('🚀 ~ plugin:', plugin)
 	if (range === 'none') {
 		return ''
 	}
 
 	const aiMemoriesPath = 'AI-memories.md'
 	const aiMemoriesFile = plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
+	console.log('🚀 ~ aiMemoriesFile:', aiMemoriesFile)
 	if (aiMemoriesFile instanceof TFile) {
 		const content = await plugin.app.vault.read(aiMemoriesFile)
+		console.log('🚀 ~ content:', content)
 		return await plugin.getFilteredMemories(range)
 	}
 	return ''
@@ -24,14 +28,14 @@ export const updateMemories = async (
 	inputContent: string,
 	date = '',
 	updateFile = false,
-	range = 'all',
+	range = 'all'
 ): Promise<string> => {
 	const memoriesContent = await getAIMemoriesContent(plugin, range)
 	const updatedMemories = await fetchMemoriesFromAPI(
 		plugin,
 		inputContent,
 		date,
-		() => Promise.resolve(memoriesContent),
+		() => Promise.resolve(memoriesContent)
 	)
 
 	if (updateFile) {
@@ -77,7 +81,7 @@ export const saveMemoriesToNote = async (plugin: MyPlugin): Promise<void> => {
 
 export const fetchMemories = async (
 	plugin: MyPlugin,
-	userInput: string,
+	userInput: string
 ): Promise<string> => {
 	return await updateMemories(plugin, userInput)
 }
