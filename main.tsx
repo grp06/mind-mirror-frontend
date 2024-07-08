@@ -34,17 +34,10 @@ export default class MyPlugin extends Plugin {
 		}
 
 		const currentDate = new Date()
-		console.log(
-			'🚀 ~ MyPlugin ~ getFilteredMemories ~ currentDate:',
-			currentDate,
-		)
+
 		currentDate.setHours(0, 0, 0, 0)
 		const [, count] = range.match(/last(\d+)/) || []
 		const daysToInclude = parseInt(count, 10) || 0
-		console.log(
-			'🚀 ~ MyPlugin ~ getFilteredMemories ~ daysToInclude:',
-			daysToInclude,
-		)
 
 		const cutoffDate = new Date(currentDate)
 		cutoffDate.setDate(currentDate.getDate() - daysToInclude)
@@ -58,9 +51,6 @@ export default class MyPlugin extends Plugin {
 			return false
 		})
 
-		console.log('Cutoff date:', cutoffDate.toISOString().split('T')[0])
-		console.log('Filtered memories:', filteredLines.length)
-
 		return filteredLines.join('\n')
 	}
 
@@ -71,14 +61,14 @@ export default class MyPlugin extends Plugin {
 
 		const dateRegex = /^\d{4}-\d{2}-\d{2}/
 		const filteredFiles = files.filter(
-			(file) => file.name.startsWith('2024') && dateRegex.test(file.name),
+			(file) => file.name.startsWith('2024') && dateRegex.test(file.name)
 		)
 
 		filteredFiles.sort((a, b) => b.stat.mtime - a.stat.mtime)
 
 		let notesToInclude: TFile[] = []
 
-		if (range === 'current' || range === 'just this note') {
+		if (range === 'current') {
 			notesToInclude = [currentFile]
 		} else {
 			const [, count] = range.match(/last(\d+)/) || []
@@ -100,7 +90,7 @@ export default class MyPlugin extends Plugin {
 			notesToInclude.map(async (file) => {
 				const content = await this.app.vault.read(file)
 				return `# ${file.basename}\n\n${content}`
-			}),
+			})
 		)
 
 		return noteContents
@@ -117,7 +107,7 @@ export default class MyPlugin extends Plugin {
 		if (currentContent.startsWith('# Daily Emotions')) {
 			const lines = currentContent.split('\n')
 			const index = lines.findIndex((line) =>
-				line.startsWith('# Daily Emotions'),
+				line.startsWith('# Daily Emotions')
 			)
 			lines.splice(index + 1, 0, formattedEmotion)
 			updatedContent = lines.join('\n')
@@ -139,7 +129,7 @@ export default class MyPlugin extends Plugin {
 		this.root.render(
 			<AppProvider plugin={this}>
 				<DropdownContainer />
-			</AppProvider>,
+			</AppProvider>
 		)
 	}
 

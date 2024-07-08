@@ -11,15 +11,12 @@ export async function fetchTherapyResponse({
 	getAIMemoriesContent,
 }: FetchTherapyResponseParams): Promise<string> {
 	try {
-		let notesContent = userInput
-
-		if (noteRange !== 'current' && noteRange !== 'just this note') {
-			const notes = await plugin.getRecentNotes(noteRange)
-			notesContent = notes.join('\n\n')
-		}
+		const notes = await plugin.getRecentNotes(noteRange)
+		console.log('🚀 ~ notes:', notes)
+		const notesContent = notes.join('\n\n')
+		console.log('🚀 ~ notesContent:', notesContent)
 
 		const memoriesContent = await getAIMemoriesContent()
-		console.log('🚀 ~ memoriesContent:', memoriesContent)
 
 		const authToken = localStorage.getItem('authToken')
 		const userApiKey = (plugin as MyPlugin).settings.apiKey
@@ -48,6 +45,10 @@ export async function fetchTherapyResponse({
 		const data = await response.json()
 
 		if (!response.ok) {
+			// Handle 401 Unauthorized error
+			if (response.status === 401) {
+				throw new Error('Unauthorized: ' + (data.error || 'Unknown error'))
+			}
 			throw new Error(data.error || 'Unknown error')
 		}
 

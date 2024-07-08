@@ -1,4 +1,8 @@
-import React, { useEffect, MouseEvent as ReactMouseEvent } from 'react'
+import React, {
+	useEffect,
+	useState,
+	MouseEvent as ReactMouseEvent,
+} from 'react'
 import { useAppContext } from '../context/AppContext'
 import {
 	InputItem,
@@ -8,49 +12,64 @@ import {
 	UpdateMemoriesButton,
 	RefreshButton,
 	EmotionsActionButton,
+	AdvancedSettingsToggle,
+	AdvancedSettingsContainer,
+	ArrowIcon,
+	AdvancedText,
 } from './StyledComponents'
+import { faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import ResponseModal from './ResponseModal'
 import { therapyTypes, insightFilters, vibeOptions } from '../data'
 import CustomizableDropdown from './CustomizableDropdown'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const DropdownContainer: React.FC = () => {
 	const {
-		plugin,
-		authToken,
 		authMessage,
+		authToken,
+		generateTherapyResponse,
+		handleInsightFilterChange,
+		handleLengthChange,
+		handleMemoryRangeChange,
+		handleNoteRangeChange,
+		handleTherapyTypeChange,
+		handleVibeChange,
+		insightFilter,
+		length,
+		memoryRange,
+		noteRange,
+		plugin,
+		saveMemoriesToNote,
 		setAuthMessage,
 		therapyType,
-		insightFilter,
-		updateUserInput,
-		generateTherapyResponse,
-		handleTherapyTypeChange,
-		handleInsightFilterChange,
-		saveMemoriesToNote,
-		vibe,
-		handleVibeChange,
-		length,
-		handleLengthChange,
-		noteRange,
-		handleNoteRangeChange,
 		toggleEmotionsBar,
-		memoryRange,
-		handleMemoryRangeChange,
+		vibe,
 	} = useAppContext()
 
-	useEffect(() => {
-		updateUserInput()
-		const onActiveLeafChange = () => updateUserInput()
-		plugin.app.workspace.on('active-leaf-change', onActiveLeafChange)
-		return () => {
-			plugin.app.workspace.off('active-leaf-change', onActiveLeafChange)
-		}
-	}, [plugin])
+	const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
+
+	const toggleAdvancedSettings = () => {
+		setIsAdvancedOpen(!isAdvancedOpen)
+	}
+
+	// useEffect(() => {
+	// 	updateUserInput()
+	// 	const onActiveLeafChange = () => {
+	// 		console.log('Active leaf changed')
+	// 		updateUserInput()
+	// 	}
+	// 	plugin.app.workspace.on('active-leaf-change', onActiveLeafChange)
+	// 	return () => {
+	// 		plugin.app.workspace.off('active-leaf-change', onActiveLeafChange)
+	// 	}
+	// }, [plugin])
 
 	useEffect(() => {
 		if (!authToken) {
 			setAuthMessage('Please authenticate')
 		}
 	}, [authToken, setAuthMessage])
+
 	const handleCustomSubmit =
 		(type: 'therapy' | 'insight' | 'vibe') => (value: string) => {
 			switch (type) {
@@ -76,6 +95,7 @@ const DropdownContainer: React.FC = () => {
 		event.preventDefault()
 		saveMemoriesToNote()
 	}
+
 	return (
 		<>
 			{authMessage && <div>{authMessage}</div>}
@@ -104,64 +124,75 @@ const DropdownContainer: React.FC = () => {
 					onCustomSubmit={handleCustomSubmit('insight')}
 					placeholder="Enter the insight you want"
 				/>
-				<CustomizableDropdown
-					label="Vibe"
-					options={vibeOptions}
-					value={vibe}
-					onChange={(value) =>
-						handleVibeChange({
-							target: { value },
-						} as React.ChangeEvent<HTMLSelectElement>)
-					}
-					onCustomSubmit={handleCustomSubmit('vibe')}
-					placeholder="Enter the therapist's vibe"
-				/>
-				<InputItem>
-					<Label htmlFor="length-dropdown">Length</Label>
-					<Select
-						id="length-dropdown"
-						value={length}
-						onChange={handleLengthChange}
-					>
-						<option value="one sentence">One Sentence</option>
-						<option value="three sentences">Three Sentences</option>
-						<option value="one paragraph">One Paragraph</option>
-						<option value="as long as possible">As Long As Possible</option>
-					</Select>
-				</InputItem>
-				<InputItem>
-					<Label htmlFor="note-range-dropdown">Note Range</Label>
-					<Select
-						id="note-range-dropdown"
-						value={noteRange}
-						onChange={handleNoteRangeChange}
-					>
-						<option value="current">Just this note</option>
-						<option value="last2">Last 2 notes</option>
-						<option value="last3">Last 3 notes</option>
-						<option value="last5">Last 5 notes</option>
-						<option value="last10">Last 10 notes</option>
-						<option value="last20">Last 20 notes</option>
-					</Select>
-				</InputItem>
-				<InputItem>
-					<Label htmlFor="memory-range-dropdown">Memory Range</Label>
-					<Select
-						id="memory-range-dropdown"
-						value={memoryRange}
-						onChange={handleMemoryRangeChange}
-					>
-						<option value="all">All Memories</option>
-						<option value="last5">Last 5 days</option>
-						<option value="last10">Last 10 days</option>
-						<option value="last30">Last 30 days</option>
-						<option value="none">Don't use memories</option>
-					</Select>
-				</InputItem>
+				<AdvancedText>
+					{isAdvancedOpen ? 'hide' : 'show'} advanced options
+				</AdvancedText>
+				<ArrowIcon $isOpen={isAdvancedOpen} onClick={toggleAdvancedSettings}>
+					<FontAwesomeIcon icon={isAdvancedOpen ? faCaretDown : faCaretRight} />
+				</ArrowIcon>
+				{isAdvancedOpen && (
+					<AdvancedSettingsContainer>
+						<CustomizableDropdown
+							label="Vibe"
+							options={vibeOptions}
+							value={vibe}
+							onChange={(value) =>
+								handleVibeChange({
+									target: { value },
+								} as React.ChangeEvent<HTMLSelectElement>)
+							}
+							onCustomSubmit={handleCustomSubmit('vibe')}
+							placeholder="Enter the therapist's vibe"
+						/>
+						<InputItem>
+							<Label htmlFor="length-dropdown">Length</Label>
+							<Select
+								id="length-dropdown"
+								value={length}
+								onChange={handleLengthChange}
+							>
+								<option value="one sentence">One Sentence</option>
+								<option value="three sentences">Three Sentences</option>
+								<option value="one paragraph">One Paragraph</option>
+								<option value="as long as possible">As Long As Possible</option>
+							</Select>
+						</InputItem>
+						<InputItem>
+							<Label htmlFor="note-range-dropdown">Note Range</Label>
+							<Select
+								id="note-range-dropdown"
+								value={noteRange}
+								onChange={handleNoteRangeChange}
+							>
+								<option value="current">Just this note</option>
+								<option value="last2">Last 2 notes</option>
+								<option value="last3">Last 3 notes</option>
+								<option value="last5">Last 5 notes</option>
+								<option value="last10">Last 10 notes</option>
+								<option value="last20">Last 20 notes</option>
+							</Select>
+						</InputItem>
+						<InputItem>
+							<Label htmlFor="memory-range-dropdown">Memory Range</Label>
+							<Select
+								id="memory-range-dropdown"
+								value={memoryRange}
+								onChange={handleMemoryRangeChange}
+							>
+								<option value="all">All Memories</option>
+								<option value="last5">Last 5 days</option>
+								<option value="last10">Last 10 days</option>
+								<option value="last30">Last 30 days</option>
+								<option value="none">Don't use memories</option>
+							</Select>
+						</InputItem>
+						<UpdateMemoriesButton onClick={handleSaveMemories}>
+							Update Memories
+						</UpdateMemoriesButton>
+					</AdvancedSettingsContainer>
+				)}
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
-				<UpdateMemoriesButton onClick={handleSaveMemories}>
-					Update Memories
-				</UpdateMemoriesButton>
+
 				<EmotionsActionButton onClick={toggleEmotionsBar}>
 					🫀
 				</EmotionsActionButton>

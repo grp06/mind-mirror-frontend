@@ -76,18 +76,17 @@ export interface AppContextProps {
 	setNoteRange: (noteRange: string) => void
 	setResult: (result: string) => void
 	setTherapyType: (therapyType: string) => void
-	setUserInput: (userInput: string) => void
 	setVibe: (vibe: string) => void
 	submitCustomInsightFilter: () => void
 	submitCustomTherapyType: () => void
 	submitCustomVibe: () => void
 	therapyType: string
 	toggleEmotionsBar: () => void
-	updateUserInput: () => void
-	userInput: string
 	vibe: string
 	memoryRange: string
 	handleMemoryRangeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+	errorMessage: string
+	setErrorMessage: (message: string) => void
 }
 
 export interface AppProviderProps {

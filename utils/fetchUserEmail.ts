@@ -3,7 +3,7 @@ import { Notice } from 'obsidian'
 export async function fetchUserEmail(
 	authToken: string | null,
 	setAuthToken: (token: string | null) => void,
-	setEmail: (email: string) => void,
+	setEmail: (email: string) => void
 ): Promise<void> {
 	if (authToken) {
 		try {
@@ -14,7 +14,6 @@ export async function fetchUserEmail(
 			})
 			if (response.ok) {
 				const data = await response.json()
-				console.log('🚀 ~ data:', data)
 				setEmail(data.email)
 			} else {
 				console.error('Failed to fetch user email')

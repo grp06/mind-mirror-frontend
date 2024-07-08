@@ -21,6 +21,7 @@ const ResponseModal: React.FC = () => {
 		handleCloseModal,
 		modalState,
 		isTherapistThinking,
+		errorMessage,
 	} = useAppContext()
 
 	const modalRef = useRef<HTMLDivElement>(null)
@@ -53,7 +54,9 @@ const ResponseModal: React.FC = () => {
 					? 'Click refresh to get AI feedback'
 					: isTherapistThinking
 						? 'Your therapist is pondering your situation...'
-						: result}
+						: errorMessage // Add this line
+							? errorMessage // Add this line
+							: result}
 			</ResponseContent>
 			<ResponseActions>
 				<ActionButton onClick={() => handlePlusClick(result)}>➕</ActionButton>

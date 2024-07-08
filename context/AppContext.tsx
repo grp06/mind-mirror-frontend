@@ -15,10 +15,11 @@ import {
 import { AppContextProps, AppProviderProps, ModalState } from '../types'
 
 import {
-	updateUserInput as updateUserInputUI,
 	handlePlusClick as handlePlusClickUI,
 	handleHeartClick as handleHeartClickUI,
 } from '../utils/uiInteractions'
+
+import { MarkdownView } from 'obsidian'
 
 const AppContext = createContext<AppContextProps | undefined>(undefined)
 
@@ -29,16 +30,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [apiKey, setApiKey] = useState(plugin.settings.apiKey)
 	const [noteRange, setNoteRange] = useState(plugin.settings.noteRange)
 	const [authToken, setAuthToken] = useState<string | null>(
-		localStorage.getItem('authToken'),
+		localStorage.getItem('authToken')
 	)
 	const [memoryRange, setMemoryRange] = useState('all')
-
 	const [email, setEmail] = useState('')
-
 	const [error, setError] = useState('')
 	const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
 	const [insightFilter, setInsightFilter] = useState('Give Feedback')
-	const [userInput, setUserInput] = useState('')
 	const [result, setResult] = useState('')
 	const [modalState, setModalState] = useState<ModalState>(ModalState.Initial)
 	const [authMessage, setAuthMessage] = useState('')
@@ -51,7 +49,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	const [isCustomTherapyType, setIsCustomTherapyType] = useState(false)
 	const [isCustomInsightFilter, setIsCustomInsightFilter] = useState(false)
 	const [isCustomVibe, setIsCustomVibe] = useState(false)
-
+	const [errorMessage, setErrorMessage] = useState('')
 	const [isTherapistThinking, setIsTherapistThinking] = useState(false)
 
 	useEffect(() => {
@@ -61,14 +59,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
 	const generateTherapyResponse = async () => {
 		try {
-			updateUserInput()
+			// const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+			// const userInput = view ? view.editor.getValue() : ''
+
 			const prompt = generatePrompt()
 			setIsTherapistThinking(true)
 			setModalState(ModalState.Show)
+			setErrorMessage('')
 			const filteredMemories = await plugin.getFilteredMemories(memoryRange)
 			const result = await fetchTherapyResponse({
 				prompt,
-				userInput,
 				noteRange,
 				vibe,
 				length,
@@ -79,7 +79,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 			setModalState(ModalState.Show)
 		} catch (error) {
 			console.error('Error generating therapy response:', error)
-			setError('Failed to generate response')
+			setErrorMessage(error.message || 'Failed to generate response')
 		} finally {
 			setIsTherapistThinking(false)
 		}
@@ -108,13 +108,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 	}
 
 	const handleInsightFilterChange = (
-		e: React.ChangeEvent<HTMLSelectElement>,
+		e: React.ChangeEvent<HTMLSelectElement>
 	) => {
 		setInsightFilter(e.target.value)
-	}
-
-	const updateUserInput = () => {
-		setUserInput(updateUserInputUI(plugin))
 	}
 
 	const handlePlusClick = async (advice: string) => {
@@ -143,7 +139,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 			const formattedEmotion = `${emotion} - ${formattedTime}`
 			plugin.handleEmotionClick(formattedEmotion)
 		},
-		[plugin],
+		[plugin]
 	)
 
 	const handleLengthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -258,18 +254,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 				setNoteRange,
 				setResult,
 				setTherapyType,
-				setUserInput,
 				setVibe,
 				submitCustomInsightFilter,
 				submitCustomTherapyType,
 				submitCustomVibe,
 				therapyType,
 				toggleEmotionsBar,
-				updateUserInput,
-				userInput,
 				vibe,
 				memoryRange,
 				handleMemoryRangeChange,
+				errorMessage,
+				setErrorMessage,
 			}}
 		>
 			{children}

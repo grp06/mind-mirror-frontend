@@ -3,6 +3,7 @@ import { Plugin } from 'obsidian'
 
 export const updateUserInput = (plugin: Plugin): string => {
 	const view = plugin.app.workspace.getActiveViewOfType(MarkdownView)
+	console.log('🚀 ~ updateUserInput ~ view:', view)
 	if (view) {
 		return view.editor.getValue()
 	}

@@ -101,7 +101,7 @@ export const SaveButton = styled.button`
 export const TherapyModal = styled(Wrapper)`
 	position: absolute;
 	bottom: 35px;
-	max-height: 40vh;
+
 	overflow-y: auto;
 	right: 15px;
 	width: 300px;
@@ -307,7 +307,6 @@ export const CloseEmotionsButton = styled.div`
 	align-self: center;
 `
 
-// New styled components
 export const CustomInputWrapper = styled.div`
 	position: relative;
 	display: flex;
@@ -320,3 +319,23 @@ export const CustomInput = styled.input`
 	border: 1px solid #ccc;
 	border-radius: 4px;
 `
+
+export const AdvancedSettingsToggle = styled.div`
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	margin-top: 10px;
+`
+
+export const ArrowIcon = styled.div<{ $isOpen: boolean }>`
+	transform: ${({ $isOpen }) => ($isOpen ? 'rotate(180deg)' : 'rotate(90deg)')};
+	margin-right: 5px;
+	cursor: pointer;
+`
+
+export const AdvancedText = styled.span`
+	font-size: 0.7rem;
+	color: #f0f0f0;
+`
+
+export const AdvancedSettingsContainer = styled.div``
