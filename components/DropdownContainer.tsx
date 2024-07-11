@@ -16,6 +16,9 @@ import {
 	AdvancedSettingsContainer,
 	ArrowIcon,
 	AdvancedText,
+	ProgressBarContainer,
+	ProgressBarFill,
+	ProgressBarText,
 } from './StyledComponents'
 import { faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import ResponseModal from './ResponseModal'
@@ -44,6 +47,8 @@ const DropdownContainer: React.FC = () => {
 		therapyType,
 		toggleEmotionsBar,
 		vibe,
+		remainingBudget,
+		spendingLimit,
 	} = useAppContext()
 
 	const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
@@ -51,18 +56,6 @@ const DropdownContainer: React.FC = () => {
 	const toggleAdvancedSettings = () => {
 		setIsAdvancedOpen(!isAdvancedOpen)
 	}
-
-	// useEffect(() => {
-	// 	updateUserInput()
-	// 	const onActiveLeafChange = () => {
-	// 		console.log('Active leaf changed')
-	// 		updateUserInput()
-	// 	}
-	// 	plugin.app.workspace.on('active-leaf-change', onActiveLeafChange)
-	// 	return () => {
-	// 		plugin.app.workspace.off('active-leaf-change', onActiveLeafChange)
-	// 	}
-	// }, [plugin])
 
 	useEffect(() => {
 		if (!authToken) {
@@ -96,6 +89,26 @@ const DropdownContainer: React.FC = () => {
 		saveMemoriesToNote()
 	}
 
+	const calculateBudgetPercentage = () => {
+		console.log(
+			'🚀 ~ calculateBudgetPercentage ~ remainingBudget:',
+			remainingBudget
+		)
+		console.log(
+			'🚀 ~ calculateBudgetPercentage ~ spendingLimit:',
+			spendingLimit
+		)
+		if (
+			typeof spendingLimit === 'number' &&
+			typeof remainingBudget === 'number' &&
+			spendingLimit !== 0
+		) {
+			return ((spendingLimit - remainingBudget) / spendingLimit) * 100
+		}
+		return 0 // Default to 0 if we can't calculate a valid percentage
+	}
+
+	const budgetPercentage = calculateBudgetPercentage()
 	return (
 		<>
 			{authMessage && <div>{authMessage}</div>}
@@ -124,12 +137,7 @@ const DropdownContainer: React.FC = () => {
 					onCustomSubmit={handleCustomSubmit('insight')}
 					placeholder="Enter the insight you want"
 				/>
-				<AdvancedText>
-					{isAdvancedOpen ? 'hide' : 'show'} advanced options
-				</AdvancedText>
-				<ArrowIcon $isOpen={isAdvancedOpen} onClick={toggleAdvancedSettings}>
-					<FontAwesomeIcon icon={isAdvancedOpen ? faCaretDown : faCaretRight} />
-				</ArrowIcon>
+
 				{isAdvancedOpen && (
 					<AdvancedSettingsContainer>
 						<CustomizableDropdown
@@ -192,10 +200,19 @@ const DropdownContainer: React.FC = () => {
 					</AdvancedSettingsContainer>
 				)}
 				<RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>
-
+				<ProgressBarContainer>
+					<ProgressBarFill percentage={budgetPercentage} />
+					<ProgressBarText>{budgetPercentage.toFixed(2)}% used</ProgressBarText>
+				</ProgressBarContainer>
 				<EmotionsActionButton onClick={toggleEmotionsBar}>
 					🫀
 				</EmotionsActionButton>
+				<AdvancedText>
+					{isAdvancedOpen ? 'hide' : 'show'} advanced options
+				</AdvancedText>
+				<ArrowIcon $isOpen={isAdvancedOpen} onClick={toggleAdvancedSettings}>
+					<FontAwesomeIcon icon={isAdvancedOpen ? faCaretDown : faCaretRight} />
+				</ArrowIcon>
 			</TherapyModal>
 			<ResponseModal />
 		</>

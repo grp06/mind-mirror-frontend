@@ -6,18 +6,16 @@ export const getAIMemoriesContent = async (
 	plugin: MyPlugin,
 	range: string
 ): Promise<string> => {
-	console.log('🚀 ~ range:', range)
-	console.log('🚀 ~ plugin:', plugin)
 	if (range === 'none') {
 		return ''
 	}
 
 	const aiMemoriesPath = 'AI-memories.md'
 	const aiMemoriesFile = plugin.app.vault.getAbstractFileByPath(aiMemoriesPath)
-	console.log('🚀 ~ aiMemoriesFile:', aiMemoriesFile)
+
 	if (aiMemoriesFile instanceof TFile) {
 		const content = await plugin.app.vault.read(aiMemoriesFile)
-		console.log('🚀 ~ content:', content)
+
 		return await plugin.getFilteredMemories(range)
 	}
 	return ''

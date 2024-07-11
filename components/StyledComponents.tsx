@@ -101,12 +101,11 @@ export const SaveButton = styled.button`
 export const TherapyModal = styled(Wrapper)`
 	position: absolute;
 	bottom: 35px;
-
 	overflow-y: auto;
 	right: 15px;
 	width: 300px;
 	background-color: #2c2c2c;
-	padding: 20px;
+	padding: 20px 20px 20px 20px;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `
@@ -336,6 +335,34 @@ export const ArrowIcon = styled.div<{ $isOpen: boolean }>`
 export const AdvancedText = styled.span`
 	font-size: 0.7rem;
 	color: #f0f0f0;
+	margin-top: 20px;
 `
 
 export const AdvancedSettingsContainer = styled.div``
+
+export const ProgressBarContainer = styled.div`
+	width: 70%;
+	height: 20px;
+	background-color: #e0e0e0;
+	border-radius: 10px;
+	margin-top: 10px;
+	position: relative;
+	overflow: hidden;
+`
+
+export const ProgressBarFill = styled.div<{ percentage: number }>`
+	width: ${(props) => props.percentage}%;
+	height: 100%;
+	background-color: #4caf50;
+	transition: width 0.3s ease-in-out;
+`
+
+export const ProgressBarText = styled.span`
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: #000;
+	font-size: 12px;
+	font-weight: bold;
+`
