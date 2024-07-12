@@ -9,7 +9,6 @@ import {
   Label,
   Select,
   TherapyModal,
-  UpdateMemoriesButton,
   RefreshButton,
   EmotionsActionButton,
   AdvancedSettingsToggle,
@@ -29,22 +28,17 @@ const DropdownContainer: React.FC = () => {
     authToken,
     generateTherapyResponse,
     handleInsightFilterChange,
-    handleLengthChange,
-    handleMemoryRangeChange,
     handleNoteRangeChange,
     handleTherapyTypeChange,
     handleVibeChange,
     insightFilter,
     length,
-    memoryRange,
     noteRange,
-    saveMemoriesToNote,
     setAuthMessage,
     therapyType,
     toggleEmotionsBar,
     vibe,
-    remainingBudget,
-    spendingLimit,
+    setLength,
   } = useAppContext()
 
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
@@ -80,31 +74,6 @@ const DropdownContainer: React.FC = () => {
       }
     }
 
-  const handleSaveMemories = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    saveMemoriesToNote()
-  }
-
-  const calculateBudgetPercentage = () => {
-    console.log(
-      '🚀 ~ calculateBudgetPercentage ~ remainingBudget:',
-      remainingBudget,
-    )
-    console.log(
-      '🚀 ~ calculateBudgetPercentage ~ spendingLimit:',
-      spendingLimit,
-    )
-    if (
-      typeof spendingLimit === 'number' &&
-      typeof remainingBudget === 'number' &&
-      spendingLimit !== 0
-    ) {
-      return ((spendingLimit - remainingBudget) / spendingLimit) * 100
-    }
-    return 0 // Default to 0 if we can't calculate a valid percentage
-  }
-
-  const budgetPercentage = calculateBudgetPercentage()
   return (
     <>
       {authMessage && <div>{authMessage}</div>}
@@ -153,7 +122,7 @@ const DropdownContainer: React.FC = () => {
               <Select
                 id="length-dropdown"
                 value={length}
-                onChange={handleLengthChange}
+                onChange={(e) => setLength(e.target.value)}
               >
                 <option value="one sentence">One Sentence</option>
                 <option value="three sentences">Three Sentences</option>
@@ -168,7 +137,7 @@ const DropdownContainer: React.FC = () => {
                 value={noteRange}
                 onChange={handleNoteRangeChange}
               >
-                <option value="current">Just this note</option>
+                <option value="just-todays-note">Just today's note</option>
                 <option value="last2">Last 2 notes</option>
                 <option value="last3">Last 3 notes</option>
                 <option value="last5">Last 5 notes</option>
@@ -176,23 +145,6 @@ const DropdownContainer: React.FC = () => {
                 <option value="last20">Last 20 notes</option>
               </Select>
             </InputItem>
-            <InputItem>
-              <Label htmlFor="memory-range-dropdown">Memory Range</Label>
-              <Select
-                id="memory-range-dropdown"
-                value={memoryRange}
-                onChange={handleMemoryRangeChange}
-              >
-                <option value="all">All Memories</option>
-                <option value="last5">Last 5 days</option>
-                <option value="last10">Last 10 days</option>
-                <option value="last30">Last 30 days</option>
-                <option value="none">Don't use memories</option>
-              </Select>
-            </InputItem>
-            <UpdateMemoriesButton onClick={handleSaveMemories}>
-              Update Memories
-            </UpdateMemoriesButton>
           </AdvancedSettingsContainer>
         )}
         <RefreshButton onClick={generateTherapyResponse}>Refresh</RefreshButton>

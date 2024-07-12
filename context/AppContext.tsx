@@ -6,11 +6,7 @@ import React, {
   useCallback,
 } from 'react'
 import { fetchTherapyResponse } from '../utils/fetchTherapyResponse'
-import {
-  fetchMemories,
-  openAIMemoriesNote,
-  saveMemoriesToNote,
-} from '../utils/memoryUtils'
+
 import { AppContextProps, AppProviderProps, ModalState } from '../types'
 
 import {
@@ -43,15 +39,27 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [isCustomVibe, setIsCustomVibe] = useState(false)
   const [isEmotionsBarVisible, setIsEmotionsBarVisible] = useState(true)
   const [isTherapistThinking, setIsTherapistThinking] = useState(false)
-  const [length, setLength] = useState('one sentence')
-  const [memoryRange, setMemoryRange] = useState('none')
+  const [length, setLength] = useState('one paragraph')
   const [modalState, setModalState] = useState<ModalState>(ModalState.Initial)
-  const [noteRange, setNoteRange] = useState('')
+  const [noteRange, setNoteRange] = useState('just-todays-note')
   const [remainingBudget, setRemainingBudget] = useState<number | null>(null)
   const [result, setResult] = useState('')
   const [spendingLimit, setSpendingLimit] = useState<number | null>(null)
   const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
   const [vibe, setVibe] = useState('Neutral')
+
+  const removeApiKey = useCallback(() => {
+    setApiKey('')
+    plugin.settings.apiKey = ''
+    plugin.saveSettings()
+  }, [plugin])
+
+  useEffect(() => {
+    const loadSettings = () => {
+      setApiKey(plugin.settings.apiKey)
+    }
+    loadSettings()
+  }, [plugin])
 
   const fetchInitialBudgetData = useCallback(async () => {
     try {
@@ -84,6 +92,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
       fetchInitialBudgetData()
     }
   }, [authToken, fetchInitialBudgetData])
+
   const generateTherapyResponse = async () => {
     try {
       const prompt = generatePrompt()
@@ -94,13 +103,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({
       const result = await fetchTherapyResponse({
         prompt,
         noteRange,
-        vibe,
         length,
+        vibe,
         plugin,
-        memoryRange,
       })
 
-      console.log('🚀 ~ generateTherapyResponse ~ result:', result)
       setRemainingBudget(result.remaining_budget)
       setSpendingLimit(result.spending_limit)
       setResult(result.content)
@@ -112,13 +119,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
       setIsTherapistThinking(false)
     }
   }
-
-  useEffect(() => {
-    const loadSettings = () => {
-      setApiKey(plugin.settings.apiKey)
-    }
-    loadSettings()
-  }, [plugin])
 
   const handleVibeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setVibe(e.target.value)
@@ -167,11 +167,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     [plugin],
   )
 
-  const handleLengthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLength = e.target.value
-    setLength(newLength)
-  }
-  
   const handleCloseModal = useCallback(() => {
     setModalState(ModalState.Hide)
   }, [])
@@ -214,10 +209,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     setNoteRange(newNoteRange)
   }
 
-  const handleMemoryRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setMemoryRange(e.target.value)
-  }
-
   return (
     <AppContext.Provider
       value={{
@@ -231,7 +222,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         email,
         error,
         errorMessage,
-        fetchMemories: (userInput: string) => fetchMemories(plugin, userInput),
         generatePrompt,
         generateTherapyResponse,
         handleCloseModal,
@@ -241,8 +231,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         handleEmotionClick,
         handleHeartClick,
         handleInsightFilterChange,
-        handleLengthChange,
-        handleMemoryRangeChange,
         handleNoteRangeChange,
         handlePlusClick,
         handleShowModal,
@@ -255,14 +243,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         isEmotionsBarVisible,
         isTherapistThinking,
         length,
-        memoryRange,
         modalState,
         noteRange,
-        openAIMemoriesNote: () => openAIMemoriesNote(plugin),
         plugin,
+        removeApiKey,
         remainingBudget,
         result,
-        saveMemoriesToNote: () => saveMemoriesToNote(plugin),
         setApiKey,
         setAuthMessage,
         setAuthToken,

@@ -11,67 +11,12 @@ export default class MyPlugin extends Plugin {
   settings: PluginSettings = {
     apiKey: '',
   }
-
   authMessage = ''
 
-  async getFilteredMemories(range: string): Promise<string> {
-    console.log('getFilteredMemories called with range:', range)
-
-    if (range === 'none') {
-      console.log('Range is none, returning empty string')
-      return ''
-    }
-
-    const aiMemoriesFile =
-      this.app.vault.getAbstractFileByPath('AI-memories.md')
-    if (!(aiMemoriesFile instanceof TFile)) {
-      console.log('AI-memories.md file not found')
-      return ''
-    }
-
-    const content = await this.app.vault.read(aiMemoriesFile)
-    console.log('Raw content length:', content.length)
-    const lines = content.split('\n').filter((line) => line.trim() !== '')
-    console.log('Total non-empty lines in AI-memories.md:', lines.length)
-
-    if (range === 'all') {
-      console.log('Range is all, returning full content')
-      return content
-    }
-
-    const currentDate = new Date()
-    currentDate.setHours(0, 0, 0, 0)
-    const [, count] = range.match(/last(\d+)/) || []
-    const daysToInclude = parseInt(count, 10) || 0
-
-    const cutoffDate = new Date(currentDate)
-    cutoffDate.setDate(currentDate.getDate() - daysToInclude)
-
-    const sortedLines = lines.sort((a, b) => {
-      const dateA = a.match(/(\d{4}-\d{2}-\d{2})$/)?.[1]
-
-      const dateB = b.match(/(\d{4}-\d{2}-\d{2})$/)?.[1]
-
-      if (dateA && dateB) {
-        return new Date(dateB).getTime() - new Date(dateA).getTime()
-      }
-      return 0
-    })
-
-    const filteredLines = sortedLines.filter((line) => {
-      const dateMatch = line.match(/(\d{4}-\d{2}-\d{2})$/)
-      if (dateMatch) {
-        const memoryDate = new Date(dateMatch[1] + 'T00:00:00')
-        return memoryDate >= cutoffDate && memoryDate <= currentDate
-      }
-      return false
-    })
-
-    return filteredLines.join('\n')
-  }
   async getRecentNotes(range: string): Promise<string[]> {
     const files = this.app.vault.getMarkdownFiles()
     const currentFile = this.app.workspace.getActiveFile()
+
     if (!currentFile) return []
 
     const dateRegex = /^\d{4}-\d{2}-\d{2}/
@@ -83,7 +28,7 @@ export default class MyPlugin extends Plugin {
 
     let notesToInclude: TFile[] = []
 
-    if (range === 'current') {
+    if (range === 'just-todays-note') {
       notesToInclude = [currentFile]
     } else {
       const [, count] = range.match(/last(\d+)/) || []

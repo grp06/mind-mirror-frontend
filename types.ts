@@ -6,6 +6,7 @@ import { App as ObsidianApp } from 'obsidian'
 export interface ExtendedApp extends ObsidianApp {
   setting: {
     close: () => void
+    open: () => void
   }
 }
 
@@ -24,8 +25,9 @@ export interface AppContextProps {
   customVibe: string
   email: string
   error: string
-  fetchMemories: (userInput: string) => Promise<string>
+  errorMessage: string
   generatePrompt: () => string
+  generateTherapyResponse: () => Promise<void>
   handleCloseModal: () => void
   handleCustomInsightFilterChange: (value: string) => void
   handleCustomTherapyTypeChange: (value: string) => void
@@ -33,7 +35,6 @@ export interface AppContextProps {
   handleEmotionClick: (emotion: string) => void
   handleHeartClick: (advice: string) => Promise<void>
   handleInsightFilterChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-  handleLengthChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
   handleNoteRangeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
   handlePlusClick: (advice: string) => Promise<void>
   handleShowModal: () => void
@@ -48,10 +49,10 @@ export interface AppContextProps {
   length: string
   modalState: ModalState
   noteRange: string
-  openAIMemoriesNote: () => Promise<void>
   plugin: MyPlugin
+  remainingBudget: number | null
+  removeApiKey: () => void
   result: string
-  saveMemoriesToNote: () => Promise<void>
   setApiKey: (apiKey: string) => void
   setAuthMessage: (message: string) => void
   setAuthToken: (authToken: string | null) => void
@@ -60,6 +61,7 @@ export interface AppContextProps {
   setCustomVibe: (value: string) => void
   setEmail: (email: string) => void
   setError: (error: string) => void
+  setErrorMessage: (message: string) => void
   setInsightFilter: (insightFilter: string) => void
   setIsCustomInsightFilter: (isCustom: boolean) => void
   setIsCustomTherapyType: (isCustom: boolean) => void
@@ -70,19 +72,13 @@ export interface AppContextProps {
   setResult: (result: string) => void
   setTherapyType: (therapyType: string) => void
   setVibe: (vibe: string) => void
+  spendingLimit: number | null
   submitCustomInsightFilter: () => void
   submitCustomTherapyType: () => void
   submitCustomVibe: () => void
   therapyType: string
   toggleEmotionsBar: () => void
   vibe: string
-  memoryRange: string
-  handleMemoryRangeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-  errorMessage: string
-  setErrorMessage: (message: string) => void
-  remainingBudget: number | null
-  spendingLimit: number | null
-  generateTherapyResponse: () => Promise<void>
 }
 
 export interface AppProviderProps {
@@ -96,12 +92,10 @@ export interface PluginSettings {
 
 export interface FetchTherapyResponseParams {
   prompt: string
-  userInput: string
   noteRange: string
   length: string
   vibe: string
   plugin: MyPlugin
-  getAIMemoriesContent: () => Promise<string>
 }
 
 export interface TherapyResponse {
