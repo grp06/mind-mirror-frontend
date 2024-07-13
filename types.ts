@@ -50,7 +50,6 @@ export interface AppContextProps {
   modalState: ModalState
   noteRange: string
   plugin: MyPlugin
-  remainingBudget: number | null
   removeApiKey: () => void
   result: string
   setApiKey: (apiKey: string) => void
@@ -72,7 +71,6 @@ export interface AppContextProps {
   setResult: (result: string) => void
   setTherapyType: (therapyType: string) => void
   setVibe: (vibe: string) => void
-  spendingLimit: number | null
   submitCustomInsightFilter: () => void
   submitCustomTherapyType: () => void
   submitCustomVibe: () => void
@@ -100,6 +98,4 @@ export interface FetchTherapyResponseParams {
 
 export interface TherapyResponse {
   content: string
-  remaining_budget: number
-  spending_limit: number
 }

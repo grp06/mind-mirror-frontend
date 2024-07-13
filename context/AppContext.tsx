@@ -42,9 +42,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [length, setLength] = useState('one paragraph')
   const [modalState, setModalState] = useState<ModalState>(ModalState.Initial)
   const [noteRange, setNoteRange] = useState('just-todays-note')
-  const [remainingBudget, setRemainingBudget] = useState<number | null>(null)
+
   const [result, setResult] = useState('')
-  const [spendingLimit, setSpendingLimit] = useState<number | null>(null)
   const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
   const [vibe, setVibe] = useState('Neutral')
 
@@ -61,37 +60,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     loadSettings()
   }, [plugin])
 
-  const fetchInitialBudgetData = useCallback(async () => {
-    try {
-      const response = await fetch(
-        'http://127.0.0.1:8000/backend/get_token_usage/',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch budget data')
-      }
-
-      const data = await response.json()
-      setRemainingBudget(data.remaining_budget)
-      setSpendingLimit(data.spending_limit)
-    } catch (error) {
-      console.error('Error fetching initial budget data:', error)
-      setErrorMessage('Failed to fetch budget data')
-    }
-  }, [authToken])
-
-  useEffect(() => {
-    if (authToken) {
-      fetchInitialBudgetData()
-    }
-  }, [authToken, fetchInitialBudgetData])
+  // migiht be able to delete
+  // we were doing this because we wanted to constantly update that progress bar but we got rid of it.
 
   const generateTherapyResponse = async () => {
     try {
@@ -108,8 +78,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         plugin,
       })
 
-      setRemainingBudget(result.remaining_budget)
-      setSpendingLimit(result.spending_limit)
       setResult(result.content)
       setModalState(ModalState.Show)
     } catch (error) {
@@ -247,7 +215,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         noteRange,
         plugin,
         removeApiKey,
-        remainingBudget,
         result,
         setApiKey,
         setAuthMessage,
@@ -268,7 +235,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         setResult,
         setTherapyType,
         setVibe,
-        spendingLimit,
         submitCustomInsightFilter,
         submitCustomTherapyType,
         submitCustomVibe,

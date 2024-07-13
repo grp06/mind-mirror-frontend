@@ -47,13 +47,24 @@ const SettingsTabContent: React.FC = () => {
     new Notice('API key removed successfully')
   }
 
-  const handleAuthButtonClick = () => {
+  const handleAuthButtonClick = async () => {
     if (authToken) {
-      localStorage.removeItem('authToken')
-      setAuthToken(null)
-      setEmail('')
-      new Notice('Signed out successfully')
-      setIsModalOpen(false)
+      try {
+        await fetch('http://127.0.0.1:8000/backend/logout/', {
+          method: 'POST',
+          headers: {
+            Authorization: `Token ${authToken}`,
+          },
+        })
+        localStorage.removeItem('authToken')
+        setAuthToken(null)
+        setEmail('')
+        new Notice('Signed out successfully')
+        setIsModalOpen(false)
+      } catch (error) {
+        console.error('Logout failed:', error)
+        new Notice('Logout failed')
+      }
     } else {
       setIsModalOpen(true)
     }
@@ -63,33 +74,45 @@ const SettingsTabContent: React.FC = () => {
     setIsModalOpen(false)
   }
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem('authToken')
+    if (storedToken) {
+      setAuthToken(storedToken)
+      fetchUserEmail(storedToken, setAuthToken, setEmail)
+    }
+  }, [])
+
   const handleAuthSubmit = async (
     email: string,
     password: string,
     isSignUp: boolean,
   ) => {
     try {
-      const endpoint = isSignUp ? '/backend/signup/' : '/backend/signin/'
+      const endpoint = isSignUp ? '/backend/registration/' : '/backend/login/'
+      const body = isSignUp
+        ? { email, password1: password, password2: password }
+        : { email, password }
       const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: email, password }),
+        body: JSON.stringify(body),
       })
       if (response.ok) {
         const data = await response.json()
-        localStorage.setItem('authToken', data.token)
-        setAuthToken(data.token)
+        console.log('🚀 ~ data:', data)
+        localStorage.setItem('authToken', data.access)
+        setAuthToken(data.access_token)
         setEmail(email)
         new Notice('Authenticated successfully')
         handleCloseModal()
         return true
       } else {
-        const errorText = await response.text()
-        const error = JSON.parse(errorText)
-        console.error('Authentication failed:', error)
-        new Notice(error.error || 'Authentication failed')
+        const errorData = await response.json()
+        console.error('Authentication failed:', errorData)
+        const errorMessage = Object.values(errorData).flat().join(', ')
+        new Notice(errorMessage || 'Authentication failed')
         return false
       }
     } catch (error) {

@@ -18,7 +18,7 @@ export async function fetchTherapyResponse({
     const endpoint = userApiKey ? 'openai_with_api_key' : 'openai'
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${userApiKey || authToken}`,
+      Authorization: authToken ? `Bearer ${authToken}` : `Bearer ${userApiKey}`,
     }
 
     const response = await fetch(`http://127.0.0.1:8000/backend/${endpoint}/`, {
@@ -48,7 +48,7 @@ export async function fetchTherapyResponse({
       spending_limit: data.spending_limit,
     }
   } catch (error) {
-    console.log('🚀 ~ fetchTherapyResponse ~ error:', error)
+    console.error('Error in fetchTherapyResponse:', error)
     throw error
   }
 }
