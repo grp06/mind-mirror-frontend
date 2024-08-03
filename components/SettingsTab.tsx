@@ -47,48 +47,13 @@ const SettingsTabContent: React.FC = () => {
     new Notice('API key removed successfully')
   }
 
-  const handleAuthButtonClick = async () => {
-    if (authToken) {
-      try {
-        await fetch('http://127.0.0.1:8000/backend/logout/', {
-          method: 'POST',
-          headers: {
-            Authorization: `Token ${authToken}`,
-          },
-        })
-        localStorage.removeItem('authToken')
-        setAuthToken(null)
-        setEmail('')
-        new Notice('Signed out successfully')
-        setIsModalOpen(false)
-      } catch (error) {
-        console.error('Logout failed:', error)
-        new Notice('Logout failed')
-      }
-    } else {
-      setIsModalOpen(true)
-    }
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('authToken')
-    if (storedToken) {
-      setAuthToken(storedToken)
-      fetchUserEmail(storedToken, setAuthToken, setEmail)
-    }
-  }, [])
-
   const handleAuthSubmit = async (
     email: string,
     password: string,
     isSignUp: boolean,
   ) => {
     try {
-      const endpoint = isSignUp ? '/backend/registration/' : '/backend/login/'
+      const endpoint = isSignUp ? '/api/auth/registration/' : '/api/auth/login/'
       const body = isSignUp
         ? { email, password1: password, password2: password }
         : { email, password }
@@ -102,7 +67,8 @@ const SettingsTabContent: React.FC = () => {
       if (response.ok) {
         const data = await response.json()
         console.log('🚀 ~ data:', data)
-        localStorage.setItem('authToken', data.access)
+        localStorage.setItem('accessToken', data.access_token)
+        localStorage.setItem('refreshToken', data.refresh_token)
         setAuthToken(data.access_token)
         setEmail(email)
         new Notice('Authenticated successfully')
@@ -110,7 +76,6 @@ const SettingsTabContent: React.FC = () => {
         return true
       } else {
         const errorData = await response.json()
-        console.error('Authentication failed:', errorData)
         const errorMessage = Object.values(errorData).flat().join(', ')
         new Notice(errorMessage || 'Authentication failed')
         return false
@@ -120,6 +85,69 @@ const SettingsTabContent: React.FC = () => {
       new Notice(error.message || 'Authentication failed')
       return false
     }
+  }
+
+  const handleForgotPassword = async (email: string) => {
+    try {
+      const response = await fetch(
+        'http://127.0.0.1:8000/api/auth/password/reset/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        },
+      )
+      if (response.ok) {
+        new Notice('Password reset email sent successfully')
+        return true
+      } else {
+        const errorData = await response.json()
+        const errorMessage = Object.values(errorData).flat().join(', ')
+        new Notice(errorMessage || 'Failed to send password reset email')
+        return false
+      }
+    } catch (error) {
+      console.error('Password reset failed:', error)
+      new Notice(error.message || 'Failed to send password reset email')
+      return false
+    }
+  }
+  const handleAuthButtonClick = async () => {
+    if (authToken) {
+      try {
+        await fetch('http://127.0.0.1:8000/api/auth/logout/', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        })
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        setAuthToken(null)
+        setEmail('')
+        new Notice('Signed out successfully')
+        setIsModalOpen(false)
+      } catch (error) {
+        console.error('Logout failed:', error)
+        new Notice('Logout failed')
+      }
+    } else {
+      setIsModalOpen(true)
+    }
+  }
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('accessToken')
+    if (storedToken) {
+      setAuthToken(storedToken)
+      fetchUserEmail(storedToken, setAuthToken, setEmail)
+    }
+  }, [])
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
   }
 
   return (
@@ -147,6 +175,7 @@ const SettingsTabContent: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleAuthSubmit}
+        onForgotPassword={handleForgotPassword}
         resetFormFields={() => {
           setEmail('')
           setError('')

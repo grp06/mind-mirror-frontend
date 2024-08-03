@@ -98,4 +98,6 @@ export interface FetchTherapyResponseParams {
 
 export interface TherapyResponse {
   content: string
+  remaining_budget: number
+  spending_limit: number
 }

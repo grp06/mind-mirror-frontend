@@ -12,7 +12,8 @@ export async function fetchTherapyResponse({
     const notes = await plugin.getRecentNotes(noteRange)
     const notesContent = notes.join('\n\n')
 
-    const authToken = localStorage.getItem('authToken')
+    const authToken = localStorage.getItem('accessToken')
+    console.log('🚀 ~ authToken in fetchTherapyResponse:', authToken)
     const userApiKey = (plugin as MyPlugin).settings.apiKey
 
     const endpoint = userApiKey ? 'openai_with_api_key' : 'openai'
@@ -21,17 +22,20 @@ export async function fetchTherapyResponse({
       Authorization: authToken ? `Bearer ${authToken}` : `Bearer ${userApiKey}`,
     }
 
-    const response = await fetch(`http://127.0.0.1:8000/backend/${endpoint}/`, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        prompt: prompt,
-        notes_content: notesContent,
-        length: length,
-        vibe: vibe,
-        user_api_key: userApiKey,
-      }),
-    })
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/auth/${endpoint}/`,
+      {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          prompt: prompt,
+          notes_content: notesContent,
+          length: length,
+          vibe: vibe,
+          user_api_key: userApiKey,
+        }),
+      },
+    )
 
     const data = await response.json()
 
