@@ -51,7 +51,7 @@ const SettingsTabContent: React.FC = () => {
     email: string,
     password: string,
     isSignUp: boolean,
-  ) => {
+  ): Promise<{ success: boolean; tokens?: { access_token: string; refresh_token: string; access_token_expiration: number; } }> => {
     try {
       const endpoint = isSignUp ? '/api/auth/registration/' : '/api/auth/login/'
       const body = isSignUp
@@ -73,17 +73,24 @@ const SettingsTabContent: React.FC = () => {
         setEmail(email)
         new Notice('Authenticated successfully')
         handleCloseModal()
-        return true
+        return {
+          success: true,
+          tokens: {
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            access_token_expiration: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+          },
+        }
       } else {
         const errorData = await response.json()
         const errorMessage = Object.values(errorData).flat().join(', ')
         new Notice(errorMessage || 'Authentication failed')
-        return false
+        return { success: false }
       }
     } catch (error) {
       console.error('Authentication failed:', error)
       new Notice(error.message || 'Authentication failed')
-      return false
+      return { success: false }
     }
   }
 

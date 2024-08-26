@@ -142,7 +142,8 @@ const DropdownContainer: React.FC = () => {
                 <option value="last3">Last 3 notes</option>
                 <option value="last5">Last 5 notes</option>
                 <option value="last10">Last 10 notes</option>
-                <option value="last20">Last 20 notes</option>
+                <option value="last20">Last 20 notes</option>{' '}
+                <option value="last50">Last 50 notes</option>
               </Select>
             </InputItem>
           </AdvancedSettingsContainer>

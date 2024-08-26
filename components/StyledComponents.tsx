@@ -124,6 +124,12 @@ export const ResponseModalContainer = styled.div`
 export const ResponseContent = styled.div`
   flex-grow: 1;
   overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+
+  p {
+    margin-bottom: 1em;
+  }
 `
 
 export const ResponseActions = styled.div`
