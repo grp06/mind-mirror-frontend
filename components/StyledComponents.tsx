@@ -90,7 +90,7 @@ export const SaveButton = styled.button`
   }
 `
 
-export const TherapyModal = styled(Wrapper)`
+export const TherapyModal = styled(Wrapper)<{ $isCollapsed: boolean }>`
   position: absolute;
   bottom: 35px;
   overflow-y: auto;
@@ -100,6 +100,27 @@ export const TherapyModal = styled(Wrapper)`
   padding: 20px 20px 20px 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transform-origin: bottom right;
+  transform: ${props => props.$isCollapsed ? 'scale(0)' : 'scale(1)'};
+  opacity: ${props => props.$isCollapsed ? 0 : 1};
+`
+
+export const CollapseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #f0f0f0;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  z-index: 1;
+  
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 export const ResponseModalContainer = styled.div`
@@ -338,4 +359,68 @@ export const AdvancedText = styled.span`
 
 export const AdvancedSettingsContainer = styled.div`
   width: 100%;
+`
+
+// ... existing imports ...
+
+export const CustomNotice = styled.div`
+  background-color: #2d3748;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: 500;
+  max-width: 400px;
+  margin: 0 auto;
+`
+
+export const FloatingExpandButton = styled.button<{ $isCollapsed: boolean }>`
+  position: fixed;
+  bottom: 35px;
+  right: 15px;
+  background-color: #2c2c2c;
+  padding: 8px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: ${props => props.$isCollapsed ? 1 : 0};
+  visibility: ${props => props.$isCollapsed ? 'visible' : 'hidden'};
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  z-index: 9999;
+  pointer-events: ${props => props.$isCollapsed ? 'auto' : 'none'};
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #3a3a3a;
+  }
+`
+
+export const SignInPrompt = styled.div`
+  position: fixed;
+  bottom: 35px;
+  right: 15px;
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: #f0f0f0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+`
+
+export const SignInText = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  color: #f0f0f0;
 `

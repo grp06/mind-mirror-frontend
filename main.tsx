@@ -86,11 +86,23 @@ export default class MyPlugin extends Plugin {
     const reactContainer = document.createElement('div')
     document.body.appendChild(reactContainer)
     this.root = createRoot(reactContainer)
+    
+    // Check for existing auth token
+    const existingToken = localStorage.getItem('accessToken')
+    
     this.root.render(
       <AppProvider plugin={this}>
         <DropdownContainer />
       </AppProvider>,
     )
+    
+    if (existingToken) {
+      // Ensure UI is visible if user is already authenticated
+      setTimeout(() => {
+        const event = new CustomEvent('auth-status-changed', { detail: { isAuthenticated: true } });
+        document.dispatchEvent(event);
+      }, 0);
+    }
   }
 
   async loadSettings() {

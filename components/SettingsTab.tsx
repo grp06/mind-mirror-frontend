@@ -16,6 +16,45 @@ import {
 import { fetchUserEmail } from '../utils/fetchUserEmail'
 import MyPlugin from '../main'
 import { ExtendedApp } from '../types'
+import styled from 'styled-components'
+import { requestUrl } from 'obsidian'
+
+const StyledNotice = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid var(--interactive-accent);
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+`;
+
+const showCustomNotice = (message: string) => {
+  const notice = document.createElement('div');
+  const root = createRoot(notice);
+  root.render(<StyledNotice>{message}</StyledNotice>);
+  document.body.appendChild(notice);
+
+  setTimeout(() => {
+    root.unmount();
+    document.body.removeChild(notice);
+  }, 3000);
+};
 
 const SettingsTabContent: React.FC = () => {
   const {
@@ -28,6 +67,7 @@ const SettingsTabContent: React.FC = () => {
     setError,
     plugin,
     removeApiKey,
+    setIsUIVisible,
   } = useAppContext()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -44,87 +84,108 @@ const SettingsTabContent: React.FC = () => {
 
   const handleRemoveApiKey = () => {
     removeApiKey()
-    new Notice('API key removed successfully')
+    showCustomNotice('API key removed successfully')
   }
 
   const handleAuthSubmit = async (
     email: string,
     password: string,
-    isSignUp: boolean,
-  ): Promise<{ success: boolean; tokens?: { access_token: string; refresh_token: string; access_token_expiration: number; } }> => {
+    isSignUp: boolean
+  ): Promise<{
+    success: boolean
+    tokens?: {
+      access_token: string
+      refresh_token: string
+      access_token_expiration: number
+    }
+  }> => {
     try {
-      const endpoint = isSignUp ? '/api/auth/registration/' : '/api/auth/login/'
+      const endpoint = isSignUp ? 'registration/' : 'login/'
+
       const body = isSignUp
         ? { email, password1: password, password2: password }
         : { email, password }
-      const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
+      const response = await requestUrl({
+        url: `https://trymindmirror.com/api/auth/${endpoint}`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
       })
-      if (response.ok) {
-        const data = await response.json()
-        console.log('🚀 ~ data:', data)
+      
+      const data = response.json
+
+      if (data.access_token && data.refresh_token) {
         localStorage.setItem('accessToken', data.access_token)
         localStorage.setItem('refreshToken', data.refresh_token)
         setAuthToken(data.access_token)
-        setEmail(email)
-        new Notice('Authenticated successfully')
+        setEmail('')
+        
         handleCloseModal()
+        setTimeout(() => {
+          showCustomNotice(
+            isSignUp ? 'Successfully signed up!' : 'Successfully logged in!'
+          )
+        }, 100)
+        const event = new CustomEvent('auth-status-changed', {
+          detail: { isAuthenticated: true }
+        });
+        document.dispatchEvent(event);
         return {
           success: true,
           tokens: {
             access_token: data.access_token,
             refresh_token: data.refresh_token,
-            access_token_expiration: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+            access_token_expiration: Date.now() + 30 * 24 * 60 * 60 * 1000,
           },
         }
+      } else if (data.error) {
+        console.error('Auth failed:', data.error)
+        showCustomNotice(data.error || 'Authentication failed')
+        return { success: false }
       } else {
-        const errorData = await response.json()
-        const errorMessage = Object.values(errorData).flat().join(', ')
-        new Notice(errorMessage || 'Authentication failed')
+        console.error('Unexpected response format:', data)
+        showCustomNotice('Unexpected server response')
         return { success: false }
       }
     } catch (error) {
-      console.error('Authentication failed:', error)
-      new Notice(error.message || 'Authentication failed')
+      console.error('Auth error:', error)
+      showCustomNotice(error.message || 'Authentication failed')
       return { success: false }
     }
   }
 
   const handleForgotPassword = async (email: string) => {
     try {
-      const response = await fetch(
-        'http://127.0.0.1:8000/api/auth/password/reset/',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
+      const response = await requestUrl({
+        url: 'https://trymindmirror.com/api/auth/password/reset/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      )
-      if (response.ok) {
-        new Notice('Password reset email sent successfully')
+        body: JSON.stringify({ email }),
+      })
+      if (response.status === 200) {
+        showCustomNotice('Password reset email sent successfully')
         return true
       } else {
         const errorData = await response.json()
         const errorMessage = Object.values(errorData).flat().join(', ')
-        new Notice(errorMessage || 'Failed to send password reset email')
+        showCustomNotice(errorMessage || 'Failed to send password reset email')
         return false
       }
     } catch (error) {
       console.error('Password reset failed:', error)
-      new Notice(error.message || 'Failed to send password reset email')
+      showCustomNotice(error.message || 'Failed to send password reset email')
       return false
     }
   }
   const handleAuthButtonClick = async () => {
     if (authToken) {
       try {
-        await fetch('http://127.0.0.1:8000/api/auth/logout/', {
+        await requestUrl({
+          url: 'https://trymindmirror.com/api/auth/logout/',
           method: 'POST',
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -134,11 +195,17 @@ const SettingsTabContent: React.FC = () => {
         localStorage.removeItem('refreshToken')
         setAuthToken(null)
         setEmail('')
-        new Notice('Signed out successfully')
+        setIsUIVisible(false)
+        showCustomNotice('Signed out successfully')
         setIsModalOpen(false)
+        
+        const event = new CustomEvent('auth-status-changed', {
+          detail: { isAuthenticated: false }
+        });
+        document.dispatchEvent(event);
       } catch (error) {
         console.error('Logout failed:', error)
-        new Notice('Logout failed')
+        showCustomNotice('Logout failed')
       }
     } else {
       setIsModalOpen(true)
@@ -155,6 +222,7 @@ const SettingsTabContent: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
+    ;(plugin.app as ExtendedApp).setting.close()
   }
 
   return (
@@ -212,7 +280,7 @@ export default class SettingsTab extends PluginSettingTab {
     this.root.render(
       <AppProvider plugin={this.plugin}>
         <SettingsTabContent />
-      </AppProvider>,
+      </AppProvider>
     )
   }
 }

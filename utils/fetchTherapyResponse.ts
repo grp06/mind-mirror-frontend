@@ -1,5 +1,6 @@
 import { FetchTherapyResponseParams, TherapyResponse } from '../types'
 import MyPlugin from '../main'
+import { requestUrl } from 'obsidian'
 
 export async function fetchTherapyResponse({
   prompt,
@@ -13,7 +14,6 @@ export async function fetchTherapyResponse({
     const notesContent = notes.join('\n\n')
 
     const authToken = localStorage.getItem('accessToken')
-    console.log('🚀 ~ authToken in fetchTherapyResponse:', authToken)
     const userApiKey = (plugin as MyPlugin).settings.apiKey
 
     const endpoint = userApiKey ? 'openai_with_api_key' : 'openai'
@@ -22,37 +22,39 @@ export async function fetchTherapyResponse({
       Authorization: authToken ? `Bearer ${authToken}` : `Bearer ${userApiKey}`,
     }
 
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/auth/${endpoint}/`,
-      {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          prompt: prompt,
-          notes_content: notesContent,
-          length: length,
-          vibe: vibe,
-          user_api_key: userApiKey,
-        }),
-      },
-    )
+    const response = await requestUrl({
+      url: `https://trymindmirror.com/api/auth/${endpoint}/`,
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        prompt: prompt,
+        notes_content: notesContent,
+        length: length,
+        vibe: vibe,
+        user_api_key: userApiKey,
+      }),
+    })
 
-    const data = await response.json()
+    const data = response.json
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       if (response.status === 401) {
-        throw new Error('Unauthorized: ' + (data.error || 'Unknown error'))
+        throw new Error('Unauthorized: Please check your API key or login status')
       }
-      throw new Error(data.error || 'Unknown error')
+      throw new Error(data.error || `Server error: ${response.status}`)
+    }
+
+    if (!data?.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from server')
     }
 
     return {
       content: data.choices[0].message.content,
-      remaining_budget: data.remaining_budget,
-      spending_limit: data.spending_limit,
+      remaining_budget: data.remaining_budget || 0,
+      spending_limit: data.spending_limit || 0,
     }
   } catch (error) {
     console.error('Error in fetchTherapyResponse:', error)
-    throw error
+    throw new Error(error.message || 'Failed to generate therapy response')
   }
 }

@@ -15,8 +15,10 @@ import {
   AdvancedSettingsContainer,
   ArrowIcon,
   AdvancedText,
+  CollapseButton,
+  FloatingExpandButton,
 } from './StyledComponents'
-import { faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
+import { faCaretRight, faCaretDown, faExpand, faCompress } from '@fortawesome/free-solid-svg-icons'
 import ResponseModal from './ResponseModal'
 import { therapyTypes, insightFilters, vibeOptions } from '../data'
 import CustomizableDropdown from './CustomizableDropdown'
@@ -39,12 +41,18 @@ const DropdownContainer: React.FC = () => {
     toggleEmotionsBar,
     vibe,
     setLength,
+    isUIVisible,
   } = useAppContext()
 
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const toggleAdvancedSettings = () => {
     setIsAdvancedOpen(!isAdvancedOpen)
+  }
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => !prev);
   }
 
   useEffect(() => {
@@ -74,10 +82,19 @@ const DropdownContainer: React.FC = () => {
       }
     }
 
+  useEffect(() => {
+    console.log('isUIVisible changed:', isUIVisible);
+  }, [isUIVisible]);
+
+  if (!isUIVisible) return null;
+
   return (
     <>
       {authMessage && <div>{authMessage}</div>}
-      <TherapyModal>
+      <TherapyModal $isCollapsed={isCollapsed}>
+        <CollapseButton onClick={toggleCollapse}>
+          {isCollapsed ? '↙' : '↘'}
+        </CollapseButton>
         <CustomizableDropdown
           label="Type of Therapy"
           options={therapyTypes}
@@ -159,6 +176,13 @@ const DropdownContainer: React.FC = () => {
           <FontAwesomeIcon icon={isAdvancedOpen ? faCaretDown : faCaretRight} />
         </ArrowIcon>
       </TherapyModal>
+      <FloatingExpandButton 
+        onClick={toggleCollapse} 
+        $isCollapsed={isCollapsed}
+        aria-label={isCollapsed ? "Expand therapy modal" : "Collapse therapy modal"}
+      >
+        <FontAwesomeIcon icon={isCollapsed ? faExpand : faCompress} />
+      </FloatingExpandButton>
       <ResponseModal />
     </>
   )

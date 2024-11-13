@@ -77,6 +77,8 @@ export interface AppContextProps {
   therapyType: string
   toggleEmotionsBar: () => void
   vibe: string
+  isUIVisible: boolean
+  setIsUIVisible: (isVisible: boolean) => void
 }
 
 export interface AppProviderProps {

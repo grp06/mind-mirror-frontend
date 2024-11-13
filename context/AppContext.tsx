@@ -23,7 +23,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   children,
 }) => {
   const [authToken, setAuthToken] = useState<string | null>(
-    localStorage.getItem('authToken'),
+    localStorage.getItem('accessToken'),
   )
   const [apiKey, setApiKey] = useState(plugin.settings.apiKey)
   const [authMessage, setAuthMessage] = useState('')
@@ -47,6 +47,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [therapyType, setTherapyType] = useState('Cognitive Behavioral Therapy')
   const [vibe, setVibe] = useState('Neutral')
 
+  const [isUIVisible, setIsUIVisible] = useState(false)
+
   const removeApiKey = useCallback(() => {
     setApiKey('')
     plugin.settings.apiKey = ''
@@ -59,6 +61,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     }
     loadSettings()
   }, [plugin])
+
+  useEffect(() => {
+    console.log('Auth token changed:', authToken);
+    setIsUIVisible(!!authToken);
+    console.log('Setting UI visible:', !!authToken);
+  }, [authToken]);
+
+  useEffect(() => {
+    const handleAuthStatus = (event: CustomEvent) => {
+      console.log('Auth status event received:', event.detail);
+      setIsUIVisible(event.detail.isAuthenticated);
+      console.log('Setting UI visible:', event.detail.isAuthenticated);
+    };
+
+    document.addEventListener('auth-status-changed', handleAuthStatus as EventListener);
+    
+    return () => {
+      document.removeEventListener('auth-status-changed', handleAuthStatus as EventListener);
+    };
+  }, []);
 
   // migiht be able to delete
   // we were doing this because we wanted to constantly update that progress bar but we got rid of it.
@@ -241,6 +263,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         therapyType,
         toggleEmotionsBar,
         vibe,
+        isUIVisible,
+        setIsUIVisible,
       }}
     >
       {children}
