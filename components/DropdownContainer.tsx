@@ -139,7 +139,7 @@ const DropdownContainer: React.FC = () => {
               <Select
                 id="length-dropdown"
                 value={length}
-                onChange={(e) => setLength(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLength(e.target.value)}
               >
                 <option value="one sentence">One Sentence</option>
                 <option value="three sentences">Three Sentences</option>
