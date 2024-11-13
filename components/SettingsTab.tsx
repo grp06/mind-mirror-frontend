@@ -225,9 +225,35 @@ const SettingsTabContent: React.FC = () => {
     ;(plugin.app as ExtendedApp).setting.close()
   }
 
+  const refreshToken = async (): Promise<boolean> => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return false;
+
+    try {
+      const response = await requestUrl({
+        url: 'https://trymindmirror.com/api/auth/token/refresh/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+
+      const data = response.json;
+      if (data.access) {
+        localStorage.setItem('accessToken', data.access);
+        setAuthToken(data.access);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
+    }
+  };
+
   return (
     <Wrapper>
-      <h2>Mind Mirror Settings</h2>
       <InputItem>
         <Label>OpenAI API Key</Label>
         <Input
@@ -255,6 +281,7 @@ const SettingsTabContent: React.FC = () => {
           setEmail('')
           setError('')
         }}
+        refreshToken={refreshToken}
       />
       {authToken && <EmailDisplay>Signed in as: {email}</EmailDisplay>}
     </Wrapper>
